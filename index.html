@@ -171,7 +171,20 @@
         </div>
 
         <!-- 1. LOGIN SECTION -->
-        <div id="loginSection" class="p-8 text-center space-y-6">
+        <div id="loginSection" class="p-8 text-center">
+            <!-- تعليمات الاختبار -->
+            <div class="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-2xl border border-amber-200 dark:border-amber-800 text-right mb-8 shadow-sm">
+                <h3 class="text-amber-800 dark:text-amber-300 font-bold mb-4 flex items-center text-lg">
+                    <i class="fas fa-exclamation-circle ml-2"></i> تنبيهات هامة قبل البدء:
+                </h3>
+                <ul class="text-gray-700 dark:text-gray-300 space-y-3 pr-2">
+                    <li class="flex items-start"><i class="fas fa-check text-amber-600 mt-1 ml-2 text-xs"></i> <span>استعن بالله وأجب مما تعلمت.</span></li>
+                    <li class="flex items-start"><i class="fas fa-check text-amber-600 mt-1 ml-2 text-xs"></i> <span>غير مسموح بالحل الجماعي.</span></li>
+                    <li class="flex items-start"><i class="fas fa-check text-amber-600 mt-1 ml-2 text-xs"></i> <span>غير مسموح باستخدام أي وسيلة للإجابة كالشبكة العنكبوتية.</span></li>
+                    <li class="flex items-start font-bold text-amber-900 dark:text-amber-200"><i class="fas fa-heart text-red-500 mt-1 ml-2 text-xs"></i> <span>ضع الله نصب عينيك واعلم أنه من غشنا فليس منا، وفقك الله.</span></li>
+                </ul>
+            </div>
+
             <div class="space-y-4">
                 <label class="block text-lg font-bold">الرجاء إدخال اسمك الرباعي للبدء</label>
                 <input type="text" id="userNameInput" placeholder="مثال: أحمد محمد علي عبدالله"
@@ -449,7 +462,27 @@
             { text: "أكمل : قال الناظم : ولا تشدد النون التي يظهرونها ... كقولك (............) لدى سورة الحشر", options: ["من خوف", "من خيل", "من خير"], correctIndex: 1 },
             { text: "أمرنا الناظم بقياس ....... على النون الساكنة .", options: ["الميم الساكنة", "اللام الساكنة", "التنوين"], correctIndex: 2 },
             { text: "تم ختم المنظومة بـ ........... .", options: ["الصلاة على النبي", "طلب الدعاء", "التعوذ من الكبر"], correctIndex: 1 },
-            { text: "الاختبار ....... (كل الإجابات سيتم احتسابها أنها إجابة صحيحة)", options: ["سهل", "متوسط", "صعب"], correctIndex: 0 }
+            { text: "الاختبار ....... (كل الإجابات سيتم احتسابها أنها إجابة صحيحة)", options: ["سهل", "متوسط", "صعب"], correctIndex: 0 },
+            { text: "معنى (أولي) في البيت الأول:", options: ["أصحاب", "عقل", "المدح"], correctIndex: 0 },
+            { text: "ماذا قصد الناظم بـ (الحِجر) ؟", options: ["الحجارة", "القلب", "العقل"], correctIndex: 2 },
+            { text: "الكبر معناها الاستكبار والتعظم هي صفة:", options: ["ذم", "مدح"], correctIndex: 0 },
+            { text: "المطلوب من الإنسان إذا كثر علمه وازداد فيه ان يزداد:", options: ["تواضعاً وانكساراً بين يدي الله", "استكباراً على خلق الله"], correctIndex: 0 },
+            { text: "ذكر الناظم ان المقصود من هذه القصيدة هو:", options: ["تعلم التجويد", "تعلم التجويد وحسن الأداء", "تعلم التجويد وحسن الأداء وأن يحفظه الله من فتنة الدنيا"], correctIndex: 2 },
+            { text: "واسأله عني التجاوز في غدٍ - المقصود بالغد هو:", options: ["يوم القيامة", "القبر", "اليوم القادم"], correctIndex: 0 },
+            { text: "قال الداني إن الناظم صاغ هذا البيت...... من قول الشاعر علي بن الجهم : فما كلُ من قاد الجياد يسوسُـها / ولا كلُّ من أجرى يقال له مجري", options: ["ألا فاحفظوا وصفي لكم مااختصرته / ليدري به من لم يكن منكم يدري", "فما كلُ من يتلو الكتاب يقميه / ولا كل من في الناس يقرئهم مقري", "فقد قلت في حسن الأداء قصيدة / رجوتُ إلهي ان يَحُطٌْ بها وزري"], correctIndex: 1 },
+            { text: "اكمل الناقص من البيت: وإن لنا أخذ القراءة....... / عن الأولين المقرئين ذوي الستر", options: ["واجبٌ", "سنةٌ", "لازماٌ"], correctIndex: 1 },
+            { text: "فللسبعة القراء حق على الورى / لاقرائهم قرآن ربهم الوتر - مامعنى الورى؟", options: ["المتخفي", "الخَلق من البشر", "الأجر العظيم"], correctIndex: 1 },
+            { text: "كلمة الوتر في البيت السابقة هي ⬅️", options: ["صفة للقرآن", "صفة الله تعالى", "صفة أهل القرآن"], correctIndex: 1 },
+            { text: "ذكر الناظم: فبالحرمين ابن الكثير ونافعٌ - إختاري الإجابة الصحيحة", options: ["ابن الكثير في مكة / نافع في المدينة", "نافع في مكة /ابن الكثير في المدينة"], correctIndex: 0 },
+            { text: "توفي ابن كثير سنة ⬅️", options: ["120هـ", "130هـ", "122هـ"], correctIndex: 0 },
+            { text: "عرض ابن كثير القرآن على الصحابي عبدالله بن السائب", options: ["صح", "خطأ"], correctIndex: 0 },
+            { text: "ذكر الخاقاني في منظومته أن عدد القراء", options: ["سبعة", "عشرة", "لم يذكر"], correctIndex: 0 },
+            { text: "فذو الحذق معط للحروف حقوقها - مامعنى كلمة الحذق", options: ["الماهر في كل عمل", "السريع في القراءة", "الترتيل"], correctIndex: 0 },
+            { text: "اذا رتل القرآن أو كان ذا حدر - معنى كلمة ⬅️ (رتل ، حدر) على التوالي:", options: ["القراءة البطيئة ، علو الصوت", "القراءة السريعة ، الترسل والتبيين", "الترسل والتبيين ، القراءة السريعة"], correctIndex: 2 },
+            { text: "وترتيلنا القرآن أفضل للذي / أمرنا به من مكثنا فيه والفكر", options: ["ترتيل القرآن من أجل التفكر والتدبر", "ترتيل القرآن من أجل الاهتمام بالحروف فقط", "ترتيل القرآن أفضل من التفكر فيه"], correctIndex: 0 },
+            { text: "ففي شربة لو كان علمي سقيتكم / ولم أخف عنكم ذلك العلم بالذخر - مامعنى كلمة⬅️ الذخر", options: ["خبأه لوقت الحاجة", "الشئ الثمين", "العلم الصعب"], correctIndex: 0 },
+            { text: "ذكر الناظم في القصيدة أن عدد ابياتها هي:", options: ["50", "51", "52"], correctIndex: 1 },
+            { text: "من يقم القرآن كالقدح فليكن مطيعاً لامرالله في السر والجهر ⬅️ معنى القِدح:", options: ["الكوب", "السهم الذي لم ينصل", "الكتاب"], correctIndex: 1 }
         ];
 
         // Make functions globally available
@@ -592,8 +625,20 @@
             try {
                 const userDoc = await getDoc(doc(db, "khaqaniyyah_students", currentUser));
                 if (userDoc.exists()) {
-                    score = userDoc.data().score;
-                    showResultSection();
+                    const data = userDoc.data();
+                    score = data.score;
+                    document.getElementById('finalScore').innerText = score;
+                    const maxQ = data.total || 50;
+                    document.getElementById('resultTotalQ').innerText = maxQ;
+                    
+                    const percentage = score / maxQ;
+                    let msg = "";
+                    if (percentage >= 0.9) msg = "ما شاء الله! ممتاز جداً، حفظ متقن وفهم عميق.";
+                    else if (percentage >= 0.7) msg = "جيد جداً! تحتاج مراجعة بسيطة لتكون متقناً.";
+                    else msg = "عليك بمراجعة المنظومة مرة أخرى، الاستمرار يولد الإتقان.";
+                    
+                    document.getElementById('resultMessage').innerText = msg;
+                    showSection('resultSection');
                     return;
                 }
             } catch (e) { console.error(e); }
