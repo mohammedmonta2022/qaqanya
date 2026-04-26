@@ -311,7 +311,13 @@
                 </div>
 
                 <div>
-                    <h3 class="text-xl font-bold mb-4">بنك الأسئلة الحالي (<span id="totalQuestionsCount">0</span>)</h3>
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
+                        <h3 class="text-xl font-bold">بنك الأسئلة الحالي (<span id="totalQuestionsCount">0</span>)</h3>
+                        <div class="relative w-full md:w-64">
+                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                            <input type="text" id="searchQuestionInput" onkeyup="filterAdminQuestions()" placeholder="ابحث عن سؤال..." class="w-full pr-10 pl-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm focus:border-islamic-green focus:ring-0">
+                        </div>
+                    </div>
                     <div id="questionsList"
                         class="space-y-2 max-h-60 overflow-y-auto border dark:border-gray-700 p-2 rounded">
                         <!-- Injected by JS -->
@@ -336,6 +342,41 @@
                             class="w-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-red-600 font-bold py-4 px-6 rounded-xl transition flex items-center justify-center">
                             <i class="fas fa-user-times ml-2"></i> مسح سجل الطلاب بالكامل
                         </button>
+                    </div>
+                </div>
+            </div>
+            </div>
+            
+            <!-- Edit Question Modal -->
+            <div id="editQuestionModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-lg shadow-2xl border dark:border-gray-700">
+                    <h3 class="text-xl font-bold mb-4 text-islamic-green dark:text-islamic-gold">تعديل السؤال</h3>
+                    <input type="hidden" id="editQId">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block mb-2 font-bold text-sm">نص السؤال</label>
+                            <input type="text" id="editQText" class="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-bold text-sm text-gray-600 dark:text-gray-400">الخيار الأول</label>
+                            <input type="text" id="editQOpt0" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-bold text-sm text-gray-600 dark:text-gray-400">الخيار الثاني</label>
+                            <input type="text" id="editQOpt1" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-bold text-sm text-gray-600 dark:text-gray-400">الخيار الثالث (اختياري)</label>
+                            <input type="text" id="editQOpt2" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-bold text-sm text-red-500">رقم الإجابة الصحيحة (1 أو 2 أو 3)</label>
+                            <input type="number" id="editQCorrect" min="1" max="3" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-center font-bold">
+                        </div>
+                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <button onclick="saveEditedQuestion()" class="bg-islamic-green hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex-1 transition">حفظ التعديلات</button>
+                        <button onclick="document.getElementById('editQuestionModal').classList.add('hidden')" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-white px-4 py-2 rounded-lg font-bold flex-1 transition">إلغاء</button>
                     </div>
                 </div>
             </div>
@@ -395,7 +436,7 @@
     <!-- Firebase SDK (Modular) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, query, orderBy, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, query, orderBy, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Configuration (Provided by user)
         const firebaseConfig = {
@@ -527,7 +568,9 @@
                 const qSnapshot = await getDocs(collection(db, "khaqaniyyah_questions"));
                 questions = [];
                 qSnapshot.forEach((doc) => {
-                    questions.push(doc.data());
+                    let q = doc.data();
+                    q.id = doc.id;
+                    questions.push(q);
                 });
 
                 // If no questions exist, seed initial ones
@@ -541,8 +584,8 @@
 
                 // Shuffle questions
                 questions = questions.sort(() => Math.random() - 0.5);
-                document.getElementById('totalQNum').innerText = Math.min(30, questions.length);
-                document.getElementById('resultTotalQ').innerText = Math.min(30, questions.length);
+                document.getElementById('totalQNum').innerText = questions.length;
+                document.getElementById('resultTotalQ').innerText = questions.length;
 
             } catch (e) {
                 console.error("Error loading questions:", e);
@@ -670,7 +713,7 @@
         }
 
         function renderQuestion() {
-            const maxQ = Math.min(30, questions.length);
+            const maxQ = questions.length;
             if (answeredQuestionsCount >= maxQ || currentQuestionIndex >= questions.length) {
                 finishQuiz();
                 return;
@@ -749,7 +792,7 @@
 
         async function finishQuiz() {
             document.getElementById('finalScore').innerText = score;
-            const maxQ = Math.min(30, questions.length);
+            const maxQ = questions.length;
             const percentage = score / maxQ;
             let msg = "";
             if (percentage >= 0.9) msg = "ما شاء الله! ممتاز جداً، حفظ متقن وفهم عميق.";
@@ -862,12 +905,17 @@
                     tr.innerHTML = `
                         <td class="p-3 font-medium">${data.name}</td>
                         <td class="p-3 text-islamic-green dark:text-islamic-gold font-bold">${data.score} / ${data.total}</td>
-                        <td class="p-3 text-sm flex items-center justify-between">
-                            ${date}
-                            <button id="certBtn-${data.name.replace(/\s+/g, '')}" onclick='generateCertificate(${JSON.stringify(data)})' 
-                                class="text-islamic-gold hover:text-yellow-600 p-1" title="استخراج الشهادة">
-                                <i class="fas fa-certificate text-lg"></i>
-                            </button>
+                        <td class="p-3 text-sm flex items-center justify-between gap-2">
+                            <span>${date}</span>
+                            <div class="flex gap-2">
+                                <button id="certBtn-${data.name.replace(/\s+/g, '')}" onclick='generateCertificate(${JSON.stringify(data).replace(/'/g, "&apos;")})' 
+                                    class="text-islamic-gold hover:text-yellow-600 p-1 bg-yellow-50 dark:bg-yellow-900/30 rounded" title="استخراج الشهادة">
+                                    <i class="fas fa-certificate text-lg"></i>
+                                </button>
+                                <button onclick="deleteStudent('${docSnap.id}')" class="text-red-500 hover:text-red-700 p-1 bg-red-50 dark:bg-red-900/30 rounded" title="حذف الطالب">
+                                    <i class="fas fa-trash text-lg"></i>
+                                </button>
+                            </div>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -881,17 +929,104 @@
             list.innerHTML = '';
             questions.forEach((q, i) => {
                 const div = document.createElement('div');
-                div.className = "p-2 border-b dark:border-gray-700 text-sm";
-                div.innerText = `${i + 1}. ${q.text}`;
+                div.className = "p-3 border-b dark:border-gray-700 text-sm flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800 transition question-item";
+                div.innerHTML = `
+                    <span class="flex-1 question-text">${i + 1}. ${q.text}</span>
+                    <button onclick='editQuestion(${JSON.stringify(q).replace(/'/g, "&apos;")})' class="text-blue-500 hover:text-blue-700 mr-4 bg-blue-50 dark:bg-blue-900/30 p-2 rounded" title="تعديل السؤال">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `;
                 list.appendChild(div);
             });
         }
 
+        window.filterAdminQuestions = function() {
+            const query = document.getElementById('searchQuestionInput').value.toLowerCase();
+            const items = document.querySelectorAll('.question-item');
+            items.forEach(item => {
+                const text = item.querySelector('.question-text').innerText.toLowerCase();
+                if(text.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        window.deleteStudent = async function(id) {
+            if(!confirm("هل أنت متأكد من حذف هذا الطالب نهائياً؟")) return;
+            try {
+                await deleteDoc(doc(db, "khaqaniyyah_students", id));
+                // Snapshot listener will auto update UI
+            } catch(e) {
+                console.error(e);
+                alert("حدث خطأ أثناء الحذف");
+            }
+        }
+
+        window.editQuestion = function(q) {
+            document.getElementById('editQId').value = q.id || '';
+            document.getElementById('editQText').value = q.text || '';
+            document.getElementById('editQOpt0').value = q.options[0] || '';
+            document.getElementById('editQOpt1').value = q.options[1] || '';
+            document.getElementById('editQOpt2').value = q.options[2] || '';
+            document.getElementById('editQCorrect').value = (q.correctIndex !== undefined ? q.correctIndex + 1 : 1);
+            
+            document.getElementById('editQuestionModal').classList.remove('hidden');
+        }
+
+        window.saveEditedQuestion = async function() {
+            const id = document.getElementById('editQId').value;
+            if(!id) {
+                alert("لا يمكن تعديل هذا السؤال لأنه لم يحفظ في قاعدة البيانات بعد.");
+                return;
+            }
+
+            const text = document.getElementById('editQText').value;
+            const opt0 = document.getElementById('editQOpt0').value;
+            const opt1 = document.getElementById('editQOpt1').value;
+            const opt2 = document.getElementById('editQOpt2').value;
+            let correct = parseInt(document.getElementById('editQCorrect').value) - 1;
+
+            if(!text || !opt0 || !opt1) {
+                alert("يجب ملء نص السؤال وخيارين على الأقل.");
+                return;
+            }
+
+            if(correct < 0 || correct > 2) correct = 0;
+
+            const options = [opt0, opt1];
+            if(opt2) options.push(opt2);
+
+            try {
+                await updateDoc(doc(db, "khaqaniyyah_questions", id), {
+                    text: text,
+                    options: options,
+                    correctIndex: correct
+                });
+                alert("تم تحديث السؤال بنجاح!");
+                document.getElementById('editQuestionModal').classList.add('hidden');
+                
+                // Update local array & UI
+                const qIndex = questions.findIndex(q => q.id === id);
+                if(qIndex !== -1) {
+                    questions[qIndex].text = text;
+                    questions[qIndex].options = options;
+                    questions[qIndex].correctIndex = correct;
+                    renderAdminQuestionsList();
+                }
+            } catch(e) {
+                console.error(e);
+                alert("حدث خطأ أثناء حفظ التعديلات.");
+            }
+        }
+
         window.generateCertificate = async function(customData) {
+            const currentTotal = parseInt(document.getElementById('resultTotalQ').innerText) || questions.length;
             const data = customData || { 
                 name: currentUser, 
                 score: score, 
-                total: Math.min(30, questions.length) 
+                total: currentTotal 
             };
             
             // تحديد الزر المناسب لإظهار حالة التحميل
