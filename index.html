@@ -1,22 +1,28 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>اختبار المنظومة الخاقانية</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Google Fonts (Tajawal for Arabic) -->
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Certificate Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -46,43 +52,116 @@
     </script>
 
     <style>
-        body { transition: background-color 0.3s, color 0.3s; }
-        .glow-effect { box-shadow: 0 0 15px rgba(52, 211, 153, 0.5); }
-        .correct-ans { background-color: #10b981 !important; color: white !important; border-color: #059669 !important; }
-        .wrong-ans { background-color: #ef4444 !important; color: white !important; border-color: #b91c1c !important; animation: shake 0.5s; }
-        
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
+        }
+
+        .correct-ans {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+        }
+
+        .wrong-ans {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #b91c1c !important;
+            animation: shake 0.5s;
+        }
+
         @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
         }
 
         .islamic-pattern {
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
+
         .dark .islamic-pattern {
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23fbbf24' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
+
+        /* Certificate Template Styling - Improved Organization */
+        #certificateTemplate {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 1120px; /* عرض أكبر لتنظيم أفضل */
+            height: 790px;
+            background-color: #fff9f0;
+            background-image: radial-gradient(rgba(217, 119, 6, 0.05) 1.5px, transparent 1.5px);
+            background-size: 40px 40px;
+            padding: 30px;
+            font-family: 'Tajawal', sans-serif;
+            text-align: center;
+        }
+
+        .cert-outer-border {
+            border: 12px solid #064e3b;
+            height: 100%;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .cert-inner-border {
+            border: 4px double #d97706;
+            height: 100%;
+            width: 100%;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; /* توزيع متوازن للعناصر */
+            position: relative;
+            box-sizing: border-box;
+        }
     </style>
 </head>
-<body class="bg-islamic-light dark:bg-dark-bg text-gray-800 dark:text-dark-text min-h-screen islamic-pattern flex flex-col items-center justify-center p-4">
+
+<body
+    class="bg-islamic-light dark:bg-dark-bg text-gray-800 dark:text-dark-text min-h-screen islamic-pattern flex flex-col items-center justify-center p-4">
 
     <!-- Top Bar -->
     <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-center z-50">
-        <button id="themeToggle" class="p-2 rounded-full bg-white dark:bg-dark-card shadow-md text-islamic-green dark:text-islamic-gold hover:scale-110 transition">
+        <button id="themeToggle"
+            class="p-2 rounded-full bg-white dark:bg-dark-card shadow-md text-islamic-green dark:text-islamic-gold hover:scale-110 transition">
             <i class="fas fa-moon dark:hidden"></i>
             <i class="fas fa-sun hidden dark:block"></i>
         </button>
-        <div id="userInfo" class="hidden font-bold bg-white dark:bg-dark-card px-4 py-2 rounded-full shadow-md text-islamic-green dark:text-islamic-gold">
+        <div id="userInfo"
+            class="hidden font-bold bg-white dark:bg-dark-card px-4 py-2 rounded-full shadow-md text-islamic-green dark:text-islamic-gold">
             <i class="fas fa-user ml-2"></i> <span id="displayUserName"></span>
         </div>
     </div>
 
     <!-- MAIN CONTAINER -->
-    <div class="w-full max-w-3xl bg-white dark:bg-dark-card rounded-2xl shadow-2xl overflow-hidden border-t-4 border-islamic-green dark:border-islamic-gold transition-all duration-300">
-        
+    <div
+        class="w-full max-w-3xl bg-white dark:bg-dark-card rounded-2xl shadow-2xl overflow-hidden border-t-4 border-islamic-green dark:border-islamic-gold transition-all duration-300">
+
         <!-- HEADER -->
         <div class="p-6 text-center border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <h1 class="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-2">
@@ -95,11 +174,13 @@
         <div id="loginSection" class="p-8 text-center space-y-6">
             <div class="space-y-4">
                 <label class="block text-lg font-bold">الرجاء إدخال اسمك الرباعي للبدء</label>
-                <input type="text" id="userNameInput" placeholder="مثال: أحمد محمد علي عبدالله" 
+                <input type="text" id="userNameInput" placeholder="مثال: أحمد محمد علي عبدالله"
                     class="w-full p-4 text-lg border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-islamic-green dark:focus:border-islamic-gold focus:ring-0 bg-transparent text-center transition">
-                <p id="loginError" class="text-red-500 text-sm hidden">يجب إدخال الاسم الرباعي بشكل صحيح (4 كلمات على الأقل).</p>
+                <p id="loginError" class="text-red-500 text-sm hidden">يجب إدخال الاسم الرباعي بشكل صحيح (4 كلمات على
+                    الأقل).</p>
             </div>
-            <button onclick="startLogin()" class="w-full bg-islamic-green hover:bg-green-800 dark:bg-islamic-gold dark:hover:bg-yellow-600 text-white font-bold py-4 rounded-xl text-xl transition glow-effect">
+            <button onclick="startLogin()"
+                class="w-full bg-islamic-green hover:bg-green-800 dark:bg-islamic-gold dark:hover:bg-yellow-600 text-white font-bold py-4 rounded-xl text-xl transition glow-effect">
                 اختبر الآن <i class="fas fa-arrow-left mr-2"></i>
             </button>
         </div>
@@ -110,14 +191,17 @@
                 <span>السؤال <span id="currentQNum">1</span> من <span id="totalQNum">30</span></span>
                 <span>النتيجة: <span id="currentScore">0</span></span>
             </div>
-            
+
             <!-- Progress Bar -->
             <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-8">
-                <div id="progressBar" class="bg-islamic-green dark:bg-islamic-gold h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                <div id="progressBar"
+                    class="bg-islamic-green dark:bg-islamic-gold h-2.5 rounded-full transition-all duration-500"
+                    style="width: 0%"></div>
             </div>
 
-            <h2 id="questionText" class="text-2xl font-serif font-bold mb-8 text-center leading-relaxed">جاري تحميل السؤال...</h2>
-            
+            <h2 id="questionText" class="text-2xl font-serif font-bold mb-8 text-center leading-relaxed">جاري تحميل
+                السؤال...</h2>
+
             <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Options injected by JS -->
             </div>
@@ -128,12 +212,19 @@
             <i class="fas fa-trophy text-6xl text-islamic-gold mb-4"></i>
             <h2 class="text-3xl font-bold">انتهى الاختبار!</h2>
             <div class="text-2xl">
-                نتيجتك هي: <span id="finalScore" class="font-bold text-islamic-green dark:text-islamic-gold text-4xl mx-2">0</span> / <span id="resultTotalQ">30</span>
+                نتيجتك هي: <span id="finalScore"
+                    class="font-bold text-islamic-green dark:text-islamic-gold text-4xl mx-2">0</span> / <span
+                    id="resultTotalQ">30</span>
             </div>
             <p id="resultMessage" class="text-lg text-gray-600 dark:text-gray-300"></p>
             
-            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button onclick="retakeQuiz()" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold py-3 px-8 rounded-xl transition">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button id="certBtn-current" onclick="generateCertificate(null)"
+                    class="bg-islamic-gold hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg">
+                    <i class="fas fa-file-pdf ml-2"></i> استخراج الشهادة ومشاركتها
+                </button>
+                <button onclick="retakeQuiz()"
+                    class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold py-3 px-8 rounded-xl transition">
                     <i class="fas fa-redo ml-2"></i> إعادة الاختبار
                 </button>
             </div>
@@ -143,13 +234,18 @@
         <div id="adminSection" class="hidden p-8 space-y-8">
             <div class="flex justify-between items-center bg-islamic-green text-white p-4 rounded-xl shadow-md">
                 <h2 class="text-2xl font-bold"><i class="fas fa-user-shield ml-2"></i> لوحة تحكم المشرف</h2>
-                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm font-bold">تسجيل خروج</button>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm font-bold">تسجيل
+                    خروج</button>
             </div>
 
             <!-- Tabs -->
             <div class="flex border-b dark:border-gray-700">
-                <button onclick="switchAdminTab('students')" id="tabStudents" class="flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold">سجل الطلاب</button>
-                <button onclick="switchAdminTab('ai')" id="tabAi" class="flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300">إضافة أسئلة AI</button>
+                <button onclick="switchAdminTab('students')" id="tabStudents"
+                    class="flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold">سجل
+                    الطلاب</button>
+                <button onclick="switchAdminTab('ai')" id="tabAi"
+                    class="flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300">إضافة
+                    أسئلة AI</button>
             </div>
 
             <!-- Students Tab -->
@@ -173,22 +269,26 @@
             <!-- AI Generator Tab -->
             <div id="adminAiTab" class="hidden space-y-6">
                 <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
-                    <h3 class="text-xl font-bold mb-4 text-blue-800 dark:text-blue-300"><i class="fas fa-robot ml-2"></i> توليد أسئلة بالذكاء الاصطناعي</h3>
+                    <h3 class="text-xl font-bold mb-4 text-blue-800 dark:text-blue-300"><i
+                            class="fas fa-robot ml-2"></i> توليد أسئلة بالذكاء الاصطناعي</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block mb-2 text-sm font-bold">عدد الأسئلة المطلوبة</label>
-                            <input type="number" id="aiQCount" value="5" min="1" max="20" class="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                            <input type="number" id="aiQCount" value="5" min="1" max="20"
+                                class="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
                         </div>
                         <div>
                             <label class="block mb-2 text-sm font-bold">مستوى الصعوبة</label>
-                            <select id="aiQDifficulty" class="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                            <select id="aiQDifficulty"
+                                class="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
                                 <option value="سهل">سهل</option>
                                 <option value="متوسط" selected>متوسط</option>
                                 <option value="صعب">صعب</option>
                             </select>
                         </div>
                     </div>
-                    <button id="btnGenerateAI" onclick="generateAIQuestions()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
+                    <button id="btnGenerateAI" onclick="generateAIQuestions()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
                         <i class="fas fa-magic ml-2"></i> توليد وإضافة للبنك
                     </button>
                     <p id="aiStatus" class="text-sm mt-3 text-center hidden font-bold"></p>
@@ -196,13 +296,63 @@
 
                 <div>
                     <h3 class="text-xl font-bold mb-4">بنك الأسئلة الحالي (<span id="totalQuestionsCount">0</span>)</h3>
-                    <div id="questionsList" class="space-y-2 max-h-60 overflow-y-auto border dark:border-gray-700 p-2 rounded">
+                    <div id="questionsList"
+                        class="space-y-2 max-h-60 overflow-y-auto border dark:border-gray-700 p-2 rounded">
                         <!-- Injected by JS -->
                     </div>
                 </div>
             </div>
         </div>
 
+    </div>
+
+    <div id="certificateTemplate">
+        <div class="cert-outer-border">
+            <div class="cert-inner-border">
+                <!-- زخارف علوية -->
+                <div style="position: absolute; top: 15px; left: 15px; color: #d97706; opacity: 0.6;"><i class="fas fa-mosque fa-3x"></i></div>
+                <div style="position: absolute; top: 15px; right: 15px; color: #d97706; opacity: 0.6;"><i class="fas fa-mosque fa-3x"></i></div>
+                
+                <!-- المحتوى العلوي - تم رفعه وإصلاح التداخل -->
+                <div style="margin-top: -10px;">
+                    <h1 style="font-family: 'Amiri', serif; font-size: 68px; color: #064e3b; margin: 0 0 10px 0; line-height: 1.3;">نتيجة اختبار</h1>
+                    <h2 style="font-size: 30px; color: #d97706; margin: 0; font-weight: bold;">في منظومة الخاقانية في التجويد</h2>
+                </div>
+
+                <!-- المحتوى الأوسط -->
+                <div style="margin: 20px 0;">
+                    <p style="font-size: 24px; color: #4b5563; margin-bottom: 10px;">نمنح هذه الشهادة بكل فخر واعتزاز للطالب:</p>
+                    <p id="certStudentName" style="font-size: 52px; font-weight: 900; color: #064e3b; border-bottom: 4px double #d97706; display: inline-block; padding: 0 70px; margin-bottom: 15px; min-width: 450px;"></p>
+                    <p style="font-size: 24px; color: #4b5563;">وذلك لاجتيازه الاختبار بنجاح باهر وحصوله على درجة:</p>
+                </div>
+
+                <!-- الدرجة -->
+                <div style="background: linear-gradient(135deg, #064e3b, #10b981); color: white; padding: 12px 60px; border-radius: 18px; font-size: 46px; font-weight: 900; box-shadow: 0 8px 15px rgba(6, 78, 59, 0.2); display: inline-block; margin-bottom: 30px;">
+                    <span id="certScore">0</span> من <span id="certTotal">30</span>
+                </div>
+
+                <!-- التوقيع والتاريخ - تم رفعه للأعلى بمسافة 60px عن الحافة -->
+                <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 40px; margin-bottom: 60px;">
+                    <div style="text-align: right; flex: 1;">
+                        <p style="font-size: 18px; color: #6b7280; margin-bottom: 3px;">تحريراً في:</p>
+                        <p style="font-size: 22px; color: #064e3b; font-weight: bold;"><span id="certDay"></span>: <span id="certDate"></span></p>
+                    </div>
+                    
+                    <div style="flex: 1; text-align: center; padding-bottom: 10px;">
+                        <i class="fas fa-award fa-5x text-islamic-gold" style="filter: drop-shadow(0 4px 8px rgba(217, 119, 6, 0.3));"></i>
+                    </div>
+
+                    <div style="text-align: left; flex: 1;">
+                        <p style="font-size: 18px; color: #6b7280; margin-bottom: 3px;">مقدمة من:</p>
+                        <p style="font-weight: 900; color: #064e3b; font-size: 26px;">الدورة القرءانية</p>
+                    </div>
+                </div>
+
+                <!-- زخارف سفلية - تم تصغيرها وإزاحتها للزوايا القصوى -->
+                <div style="position: absolute; bottom: 10px; left: 10px; color: #d97706; opacity: 0.4;"><i class="fas fa-star-and-crescent fa-2x"></i></div>
+                <div style="position: absolute; bottom: 10px; right: 10px; color: #d97706; opacity: 0.4;"><i class="fas fa-star-and-crescent fa-2x"></i></div>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase SDK (Modular) -->
@@ -226,8 +376,8 @@
 
         // Constants & State
         const ADMIN_NAME = "منتصر محمد راغب يونس";
-        const AI_KEY = "AIzaSyCvqnXe3Zz0l0WJ8sdPcvbjofpcpvf88sU"; // Provided by user
-        
+        const AI_KEY = "AIzaSyBpPKjD6uSleeSFMowsKPjvUU6adalAicA"; // Provided by user
+
         let currentUser = null;
         let questions = [];
         let currentQuestionIndex = 0;
@@ -262,7 +412,7 @@
         function setupThemeToggle() {
             const btn = document.getElementById('themeToggle');
             const html = document.documentElement;
-            
+
             if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 html.classList.add('dark');
             } else {
@@ -271,7 +421,7 @@
 
             btn.addEventListener('click', () => {
                 html.classList.toggle('dark');
-                if(html.classList.contains('dark')){
+                if (html.classList.contains('dark')) {
                     localStorage.setItem('theme', 'dark');
                 } else {
                     localStorage.setItem('theme', 'light');
@@ -296,7 +446,7 @@
                         questions.push(q);
                     }
                 }
-                
+
                 // Shuffle questions
                 questions = questions.sort(() => Math.random() - 0.5);
                 document.getElementById('totalQNum').innerText = Math.min(30, questions.length);
@@ -355,10 +505,10 @@
         }
 
         // --- LOGIN LOGIC ---
-        window.startLogin = async function() {
+        window.startLogin = async function () {
             const input = document.getElementById('userNameInput').value.trim();
             const err = document.getElementById('loginError');
-            
+
             if (input === ADMIN_NAME) {
                 localStorage.setItem('khaqaniyyah_user', input);
                 currentUser = input;
@@ -378,7 +528,7 @@
             currentUser = words.join(' ');
             localStorage.setItem('khaqaniyyah_user', currentUser);
             updateUserInfo(currentUser);
-            
+
             // Check if already taken
             try {
                 const userDoc = await getDoc(doc(db, "khaqaniyyah_students", currentUser));
@@ -393,7 +543,7 @@
             startQuiz();
         }
 
-        window.logout = function() {
+        window.logout = function () {
             localStorage.removeItem('khaqaniyyah_user');
             currentUser = null;
             document.getElementById('userInfo').classList.add('hidden');
@@ -411,7 +561,7 @@
             renderQuestion();
         }
 
-        window.retakeQuiz = function() {
+        window.retakeQuiz = function () {
             startQuiz();
         }
 
@@ -425,15 +575,15 @@
             const q = questions[currentQuestionIndex];
             document.getElementById('currentQNum').innerText = answeredQuestionsCount + 1;
             document.getElementById('currentScore').innerText = score;
-            
+
             const progress = (answeredQuestionsCount / maxQ) * 100;
             document.getElementById('progressBar').style.width = `${progress}%`;
 
             document.getElementById('questionText').innerText = q.text;
-            
+
             const container = document.getElementById('optionsContainer');
             container.innerHTML = '';
-            
+
             q.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = "p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition text-right w-full";
@@ -443,7 +593,7 @@
             });
         }
 
-        window.handleAnswer = function(btn, selectedIdx, correctIdx) {
+        window.handleAnswer = function (btn, selectedIdx, correctIdx) {
             // Disable all buttons
             const buttons = document.getElementById('optionsContainer').querySelectorAll('button');
             buttons.forEach(b => b.disabled = true);
@@ -501,7 +651,7 @@
             if (percentage >= 0.9) msg = "ما شاء الله! ممتاز جداً، حفظ متقن وفهم عميق.";
             else if (percentage >= 0.7) msg = "جيد جداً! تحتاج مراجعة بسيطة لتكون متقناً.";
             else msg = "عليك بمراجعة المنظومة مرة أخرى، الاستمرار يولد الإتقان.";
-            
+
             document.getElementById('resultMessage').innerText = msg;
             showSection('resultSection');
 
@@ -519,7 +669,7 @@
         }
 
         // --- ADMIN LOGIC ---
-        window.switchAdminTab = function(tab) {
+        window.switchAdminTab = function (tab) {
             const tStudents = document.getElementById('tabStudents');
             const tAi = document.getElementById('tabAi');
             const cStudents = document.getElementById('adminStudentsTab');
@@ -553,7 +703,13 @@
                     tr.innerHTML = `
                         <td class="p-3 font-medium">${data.name}</td>
                         <td class="p-3 text-islamic-green dark:text-islamic-gold font-bold">${data.score} / ${data.total}</td>
-                        <td class="p-3 text-sm">${date}</td>
+                        <td class="p-3 text-sm flex items-center justify-between">
+                            ${date}
+                            <button id="certBtn-${data.name.replace(/\s+/g, '')}" onclick='generateCertificate(${JSON.stringify(data)})' 
+                                class="text-islamic-gold hover:text-yellow-600 p-1" title="استخراج الشهادة">
+                                <i class="fas fa-certificate text-lg"></i>
+                            </button>
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -567,12 +723,80 @@
             questions.forEach((q, i) => {
                 const div = document.createElement('div');
                 div.className = "p-2 border-b dark:border-gray-700 text-sm";
-                div.innerText = `${i+1}. ${q.text}`;
+                div.innerText = `${i + 1}. ${q.text}`;
                 list.appendChild(div);
             });
         }
 
-        window.generateAIQuestions = async function() {
+        window.generateCertificate = async function(customData) {
+            const data = customData || { 
+                name: currentUser, 
+                score: score, 
+                total: Math.min(30, questions.length) 
+            };
+            
+            // تحديد الزر المناسب لإظهار حالة التحميل
+            const btnId = customData ? `certBtn-${data.name.replace(/\s+/g, '')}` : 'certBtn-current';
+            const btn = document.getElementById(btnId);
+            const originalHTML = btn ? btn.innerHTML : '';
+            
+            if(btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري التجهيز...';
+            }
+
+            // تعبئة البيانات في قالب الشهادة
+            document.getElementById('certStudentName').innerText = data.name;
+            document.getElementById('certScore').innerText = data.score;
+            document.getElementById('certTotal').innerText = data.total;
+            
+            const now = new Date();
+            const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            document.getElementById('certDay').innerText = days[now.getDay()];
+            document.getElementById('certDate').innerText = now.toLocaleDateString('ar-SA');
+
+            try {
+                const certTemplate = document.getElementById('certificateTemplate');
+                // التقاط الشهادة كصورة بجودة عالية
+                const canvas = await html2canvas(certTemplate, { 
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false
+                });
+                const imgData = canvas.toDataURL('image/png');
+                
+                // إنشاء ملف PDF (أفقي A4)
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                
+                // خيار المشاركة للجوال أو التحميل للكمبيوتر
+                if (navigator.share && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                    const blob = pdf.output('blob');
+                    const file = new File([blob], `شهادة_${data.name}.pdf`, { type: 'application/pdf' });
+                    await navigator.share({
+                        files: [file],
+                        title: 'شهادة إتمام اختبار الخاقانية',
+                        text: `تم بحمد الله إتمام اختبار منظومة الخاقانية للطالب: ${data.name}`
+                    });
+                } else {
+                    pdf.save(`شهادة_${data.name}.pdf`);
+                }
+            } catch (e) {
+                console.error("Certificate error:", e);
+                alert("حدث خطأ أثناء استخراج الشهادة.");
+            } finally {
+                if(btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                }
+            }
+        }
+
+        window.generateAIQuestions = async function () {
             const count = document.getElementById('aiQCount').value;
             const difficulty = document.getElementById('aiQDifficulty').value;
             const btn = document.getElementById('btnGenerateAI');
@@ -597,7 +821,7 @@
             لا تكتب أي نص آخر غير كود ال JSON.`;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${AI_KEY}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AI_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -607,7 +831,7 @@
                 });
 
                 const data = await response.json();
-                if(data.error) throw new Error(data.error.message);
+                if (data.error) throw new Error(data.error.message);
 
                 const generatedText = data.candidates[0].content.parts[0].text;
                 const newQuestions = JSON.parse(generatedText);
@@ -643,4 +867,5 @@
 
     </script>
 </body>
-  </html>
+
+</html>
