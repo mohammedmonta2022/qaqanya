@@ -246,6 +246,9 @@
                 <button onclick="switchAdminTab('ai')" id="tabAi"
                     class="flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300">إضافة
                     أسئلة AI</button>
+                <button onclick="switchAdminTab('data')" id="tabData"
+                    class="flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300">إدارة
+                    البيانات</button>
             </div>
 
             <!-- Students Tab -->
@@ -299,6 +302,27 @@
                     <div id="questionsList"
                         class="space-y-2 max-h-60 overflow-y-auto border dark:border-gray-700 p-2 rounded">
                         <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management Tab -->
+            <div id="adminDataTab" class="hidden space-y-6">
+                <div class="bg-red-50 dark:bg-red-900/20 p-6 rounded-xl border border-red-200 dark:border-red-800">
+                    <h3 class="text-xl font-bold mb-4 text-red-800 dark:text-blue-300"><i
+                            class="fas fa-exclamation-triangle ml-2"></i> منطقة العمليات الحساسة</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">هذه العمليات تؤدي لحذف البيانات بشكل نهائي. يرجى الحذر.</p>
+                    
+                    <div class="space-y-4">
+                        <button id="btnResetBank" onclick="resetQuestionBank()"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg flex items-center justify-center">
+                            <i class="fas fa-sync ml-2"></i> تحديث بنك الأسئلة (حذف الكل وإضافة الأربعين الجديدة)
+                        </button>
+                        
+                        <button id="btnDeleteStudents" onclick="deleteAllStudents()"
+                            class="w-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-red-600 font-bold py-4 px-6 rounded-xl transition flex items-center justify-center">
+                            <i class="fas fa-user-times ml-2"></i> مسح سجل الطلاب بالكامل
+                        </button>
                     </div>
                 </div>
             </div>
@@ -358,7 +382,7 @@
     <!-- Firebase SDK (Modular) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, query, orderBy, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Configuration (Provided by user)
         const firebaseConfig = {
@@ -386,11 +410,46 @@
 
         // Base Questions to seed DB if empty
         const initialQuestions = [
-            { text: "من هو ناظم القصيدة الخاقانية؟", options: ["أبو مزاحم الخاقاني", "ابن الجزري", "الشاطبي", "الخليل بن أحمد"], correctIndex: 0 },
-            { text: "في أي علم من علوم القرآن تصنف القصيدة الخاقانية؟", options: ["علم التفسير", "علم القراءات", "علم التجويد", "علم الرسم"], correctIndex: 2 },
-            { text: "كم عدد أبيات القصيدة الخاقانية؟", options: ["51 بيتاً", "100 بيت", "109 أبيات", "40 بيتاً"], correctIndex: 0 },
-            { text: "متى توفي الناظم أبو مزاحم الخاقاني؟", options: ["325 هـ", "590 هـ", "400 هـ", "300 هـ"], correctIndex: 0 },
-            { text: "القصيدة الخاقانية تعتبر...", options: ["أول ما صُنف في التجويد نظماً", "آخر ما صنف في التجويد", "أطول قصيدة في التجويد", "منظومة في النحو"], correctIndex: 0 }
+            { text: "هذه المنظومة تُنسب إلى علم ........ ؟", options: ["التجويد", "القراءات", "الرسم"], correctIndex: 0 },
+            { text: "هذه المنظومة من بحر ...... .", options: ["الرجز", "الطويل", "الوافر"], correctIndex: 1 },
+            { text: "توفي الإمام الخاقاني عام ..... هـ .", options: ["275", "325", "375"], correctIndex: 1 },
+            { text: "ذكر الناظم اسمه في ......... .", options: ["أول المنظومة", "وسط المنظومة", "آخر المنظومة"], correctIndex: 2 },
+            { text: "ذكر الناظم عدد أبيات المنظومة في .......... .", options: ["أول المنظومة", "آخر المنظومة", "لم يذكره"], correctIndex: 1 },
+            { text: "قول الناظم : قد قلت قولا ما سبقت بمثله ... في وصف حذق قراءة القرآن يدل على ..........", options: ["سبقه الزمني في هذا العلم", "سبقه المعرفي في هذا العلم", "تواضعه الشديد"], correctIndex: 0 },
+            { text: "أول أبيات هذه المنظومة ؟", options: ["أيا قارئ القرآن أحسن أداءه ... يضاعف لك الله الجزيل من الأجر", "ألا فاحفظوا وصفي لكم ما اختصرته ... ليدري به من لم يكن منكم يدري", "أقول مقالا معجبا لأولي الحجر ... ولا فخر إن الفخر يدعو إلى الكبر"], correctIndex: 2 },
+            { text: "قال الناظم : أعلم في القول التلاوة عائذا ... بمولاي من شر المباهاة والفخر. ما المقصود بـ (مولاي) ؟", options: ["مولاه أي : خادمه", "مولاه أي : سيده", "مولاه أي : الله سبحانه وتعالى"], correctIndex: 2 },
+            { text: "قال الناظم : وأسأله عني التجاوز في غد. ما المقصود بـ (غد) ؟", options: ["اليوم التالي", "القبر", "يوم القيامة"], correctIndex: 2 },
+            { text: "قال الناظم : فللسبعة القراء حق على الورى ... لإقرائهم قرآن ربهم الوتر. كلمة (الوتر) هي صفة لكلمة ....... .", options: ["قرآن", "ربهم", "القراء"], correctIndex: 0 },
+            { text: "مِن القراء السبعة الذين ذكرهم الناظم ...... .", options: ["أبو جعفر", "يعقوب", "ابن عامر"], correctIndex: 2 },
+            { text: "قال الناظم : فبالحرمين ابنُ كثيرٍ ونافعٌ. إلى أي البلاد يُنسب الإمام ابن كثير ؟", options: ["مكة", "المدينة", "مكة والمدينة معًا لأنه قال (فبالحرمين)"], correctIndex: 0 },
+            { text: "يُنسب الإمام أبو عمرو إلى ...... .", options: ["البصرة", "الكوفة", "الشام"], correctIndex: 0 },
+            { text: "ذكر الناظم كنية الإمام عاصم في المنظومة ، وكنيته هي ..... .", options: ["أبو بكر", "أبو عمرو", "أبو العلاء"], correctIndex: 0 },
+            { text: "عدد قراء الكوفة من القراء السبعة ..... .", options: ["واحد", "اثنان", "ثلاثة"], correctIndex: 2 },
+            { text: "قال الناظم : وحمزة أيضا والكسائي بعده ... أخو الحذق بالقرآن والنحو والشعر. كلمة (الحذق) تعني ...... .", options: ["التشدد", "القوة", "المهارة"], correctIndex: 2 },
+            { text: "ذكر الإمام الخاقاني في منظومته أن القراءة بمرتبة ...... هي الأفضل .", options: ["الترتيل", "الحدر", "لم يذكر الأفضل"], correctIndex: 0 },
+            { text: "قال الناظم : وإما حدرنا درسنا فمرخص. الحدر معناه : قراءة القرآن بسرعة مع عدم مراعاة أحكام التلاوة .", options: ["صحيح", "خطأ"], correctIndex: 1 },
+            { text: "لم يبخل الناظم بعلمه على تلاميذه ، ومما يدل على حبه لتعليمهم قوله ...... .", options: ["يلقنها باغي التعلم بالصبر", "ففي شربة لو كان علمي سقيتكم", "زن الحرف لا تخرجه عن حد وزنه"], correctIndex: 1 },
+            { text: "ما معنى (القِدح) في قول الناظم : ومن يقم القرآن كالقدح فليكن ... مطيعا لأمر الله في السر والجهر", options: ["الإناء الذي يُشرب فيه", "السهم قبل أن يُنصل", "الطريق المُمَهَّد"], correctIndex: 1 },
+            { text: "قال الناظم : ألا اعلم أخي أن الفصاحة زينت ... تلاوة تال أدمن الدرس للذكر. هذا البيت يوافقه في المعنى من الجزرية ..................................", options: ["إذ واجب عليهم محتم ... قبل الشروع أولا أن يعلموا", "وهو أيضا حلية التلاوة ... وزينة الأداء والقراءة", "وليس بينه وبين تركه ... إلا رياضة امرئ بفكه"], correctIndex: 2 },
+            { text: "أول علم الذكر كما أشار الناظم هو ............ .", options: ["إتقان حفظ  القرآن", "معرفة المحكم والمتشابه", "معرفة قواعد اللغة"], correctIndex: 0 },
+            { text: "أشار الناظم في هذه المنظومة إلى ضرورة معرفة القارئ للألحان والأخطاء .", options: ["صحيح", "خطأ"], correctIndex: 0 },
+            { text: "حذًّرنا الناظمُ من الزيادة في أزمنة الحروف وخصوصا عند قراءة القرآن بمرتبة ........ .", options: ["التدوير", "التحقيق", "الحدر"], correctIndex: 1 },
+            { text: "ذكر الناظم الحد الأقصى من وجهة نظره في أخذ القرآن على العلماء وهو ....... في الجلسة .", options: ["خمس أيات", "عشر آيات", "خمسون آية"], correctIndex: 1 },
+            { text: "لم يتكلم الناظم في هذه المنظومة عن ............... .", options: ["ضرورة ضبط موازين الحروف", "ضرورة التغني بالقرآن", "ضرورة الوقف على ما تم معناه"], correctIndex: 2 },
+            { text: "لم يتكلم الناظم في هذه المنظومة عن ........ .", options: ["الإخفاء والإدغام", "المد اللازم", "لام التعريف"], correctIndex: 2 },
+            { text: "أكمل : قال الناظم : وما المد إلا في ثلاثة أحرف ... تسمى (............) باح بها ذكري", options: ["حروف اللين", "حروف الجوف", "حروف العلة"], correctIndex: 2 },
+            { text: "أكمل : قال الناظم : هي ........ المعروف فيها سكونها", options: ["الألف", "الواو", "الياء"], correctIndex: 0 },
+            { text: "قال الناظم : ورقق بيان الراء واللام ينذرب لسانك. ما معنى (ينذرب لسانك) ؟", options: ["يصبح ثقيلا", "يصبح فصيحا", "يصبح بطيء الحركة"], correctIndex: 1 },
+            { text: "قال الناظم : ولا تدغمن الميم إن جئت بعدها ... بحرف سواها. هذا البيت يشير إلى حكم ......... .", options: ["الإدغام بغير غنة", "الإدغام الشفوي", "إدغام المتقاربين"], correctIndex: 1 },
+            { text: "قال الناظم : وضمك قبل الواو كن مشبعا له ... كما أشبعوا إياك نعبد في المر. المقصود بالإشباع هنا هو ........ .", options: ["إتمام الحركة", "اختلاس الحركة", "إشباع الضمة حتى يتولد منها واو"], correctIndex: 0 },
+            { text: "ما المقصود بكلمة (المر) في البيت السابق ؟", options: ["الوقف", "الوصل", "إشارة إلى سورة الرعد لأنها تبدأ بـ (الٓمٓر)"], correctIndex: 2 },
+            { text: "قال الناظم : وإن حرف لين كان من قبل مدغم ... كآخر ما في الحمد فامدده واستجر. المقصود بـ (مدغم) هنا ........ .", options: ["حروف كلمة (يرملون)", "حروف المد الثلاثة", "أي حرف مشدد"], correctIndex: 2 },
+            { text: "سبب المد في حرف الألف في كلمة (الضالين) كما أشار الناظم هو ......... .", options: ["التقاء الساكنين", "وجود الساكن العارض", "لأنها آخر السورة"], correctIndex: 0 },
+            { text: "قال الناظم : وأسمي حروفا ستة لتخصها. ما الحكم الذي تم ذكره بعد هذا الشطر من البيت ؟", options: ["الإظهار الحلقي", "الإظهار الشفوي", "القلقلة"], correctIndex: 0 },
+            { text: "أكمل : قال الناظم : ولا تشدد النون التي يظهرونها ... كقولك (............) لدى سورة الحشر", options: ["من خوف", "من خيل", "من خير"], correctIndex: 1 },
+            { text: "أمرنا الناظم بقياس ....... على النون الساكنة .", options: ["الميم الساكنة", "اللام الساكنة", "التنوين"], correctIndex: 2 },
+            { text: "تم ختم المنظومة بـ ........... .", options: ["الصلاة على النبي", "طلب الدعاء", "التعوذ من الكبر"], correctIndex: 1 },
+            { text: "الاختبار ....... (كل الإجابات سيتم احتسابها أنها إجابة صحيحة)", options: ["سهل", "متوسط", "صعب"], correctIndex: 0 }
         ];
 
         // Make functions globally available
@@ -672,20 +731,75 @@
         window.switchAdminTab = function (tab) {
             const tStudents = document.getElementById('tabStudents');
             const tAi = document.getElementById('tabAi');
+            const tData = document.getElementById('tabData');
             const cStudents = document.getElementById('adminStudentsTab');
             const cAi = document.getElementById('adminAiTab');
+            const cData = document.getElementById('adminDataTab');
+
+            // Reset classes
+            [tStudents, tAi, tData].forEach(t => {
+                t.className = "flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300";
+            });
+            [cStudents, cAi, cData].forEach(c => c.classList.add('hidden'));
 
             if (tab === 'students') {
                 tStudents.className = "flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold";
-                tAi.className = "flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300";
                 cStudents.classList.remove('hidden');
-                cAi.classList.add('hidden');
-            } else {
+            } else if (tab === 'ai') {
                 tAi.className = "flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold";
-                tStudents.className = "flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300";
                 cAi.classList.remove('hidden');
-                cStudents.classList.add('hidden');
                 renderAdminQuestionsList();
+            } else if (tab === 'data') {
+                tData.className = "flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold";
+                cData.classList.remove('hidden');
+            }
+        }
+
+        window.resetQuestionBank = async function() {
+            if(!confirm("هل أنت متأكد من حذف كافة الأسئلة الحالية واستبدالها بالأسئلة الـ 40 الجديدة؟")) return;
+            
+            const btn = document.getElementById('btnResetBank');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري المسح والتحديث...';
+
+            try {
+                const qSnap = await getDocs(collection(db, "khaqaniyyah_questions"));
+                for (const d of qSnap.docs) {
+                    await deleteDoc(doc(db, "khaqaniyyah_questions", d.id));
+                }
+                
+                for (const q of initialQuestions) {
+                    await addDoc(collection(db, "khaqaniyyah_questions"), q);
+                }
+                
+                alert("تم تحديث بنك الأسئلة بنجاح! سيتم إعادة تحميل الصفحة.");
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                alert("حدث خطأ أثناء التحديث: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync ml-2"></i> تحديث بنك الأسئلة (حذف الكل وإضافة الأربعين الجديدة)';
+            }
+        }
+
+        window.deleteAllStudents = async function() {
+            if(!confirm("هل أنت متأكد من مسح سجل كافة الطلاب؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+            
+            const btn = document.getElementById('btnDeleteStudents');
+            btn.disabled = true;
+            
+            try {
+                const qSnap = await getDocs(collection(db, "khaqaniyyah_students"));
+                for (const d of qSnap.docs) {
+                    await deleteDoc(doc(db, "khaqaniyyah_students", d.id));
+                }
+                alert("تم مسح سجل الطلاب بنجاح.");
+            } catch (e) {
+                console.error(e);
+                alert("حدث خطأ أثناء المسح.");
+            } finally {
+                btn.disabled = false;
             }
         }
 
