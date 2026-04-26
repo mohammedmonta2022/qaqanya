@@ -1,4 +1,4 @@
-```html
+html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -35,6 +35,615 @@
                             glow: '#34d399'
                         },
                         dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            text: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { transition: background-color 0.3s, color 0.3s; }
+        .glow-effect { box-shadow: 0 0 15px rgba(52, 211, 153, 0.5); }
+        .correct-ans { background-color: #10b981 !important; color: white !important; border-color: #059669 !important; }
+        .wrong-ans { background-color: #ef4444 !important; color: white !important; border-color: #b91c1c !important; animation: shake 0.5s; }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .islamic-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .dark .islamic-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23fbbf24' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-islamic-light dark:bg-dark-bg text-gray-800 dark:text-dark-text min-h-screen islamic-pattern flex flex-col items-center justify-center p-4">
+
+    <!-- Top Bar -->
+    <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-center z-50">
+        <button id="themeToggle" class="p-2 rounded-full bg-white dark:bg-dark-card shadow-md text-islamic-green dark:text-islamic-gold hover:scale-110 transition">
+            <i class="fas fa-moon dark:hidden"></i>
+            <i class="fas fa-sun hidden dark:block"></i>
+        </button>
+        <div id="userInfo" class="hidden font-bold bg-white dark:bg-dark-card px-4 py-2 rounded-full shadow-md text-islamic-green dark:text-islamic-gold">
+            <i class="fas fa-user ml-2"></i> <span id="displayUserName"></span>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="w-full max-w-3xl bg-white dark:bg-dark-card rounded-2xl shadow-2xl overflow-hidden border-t-4 border-islamic-green dark:border-islamic-gold transition-all duration-300">
+        
+        <!-- HEADER -->
+        <div class="p-6 text-center border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <h1 class="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-2">
+                <i class="fas fa-book-quran ml-2"></i> روضة الخاقانية
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">اختبر معلوماتك في أول منظومة في علم التجويد</p>
+        </div>
+
+        <!-- 1. LOGIN SECTION -->
+        <div id="loginSection" class="p-8 text-center space-y-6">
+            <div class="space-y-4">
+                <label class="block text-lg font-bold">الرجاء إدخال اسمك الرباعي للبدء</label>
+                <input type="text" id="userNameInput" placeholder="مثال: أحمد محمد علي عبدالله" 
+                    class="w-full p-4 text-lg border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-islamic-green dark:focus:border-islamic-gold focus:ring-0 bg-transparent text-center transition">
+                <p id="loginError" class="text-red-500 text-sm hidden">يجب إدخال الاسم الرباعي بشكل صحيح (4 كلمات على الأقل).</p>
+            </div>
+            <button onclick="startLogin()" class="w-full bg-islamic-green hover:bg-green-800 dark:bg-islamic-gold dark:hover:bg-yellow-600 text-white font-bold py-4 rounded-xl text-xl transition glow-effect">
+                اختبر الآن <i class="fas fa-arrow-left mr-2"></i>
+            </button>
+        </div>
+
+        <!-- 2. QUIZ SECTION -->
+        <div id="quizSection" class="hidden p-8">
+            <div class="flex justify-between items-center mb-6 text-sm font-bold text-gray-500 dark:text-gray-400">
+                <span>السؤال <span id="currentQNum">1</span> من <span id="totalQNum">30</span></span>
+                <span>النتيجة: <span id="currentScore">0</span></span>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-8">
+                <div id="progressBar" class="bg-islamic-green dark:bg-islamic-gold h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <h2 id="questionText" class="text-2xl font-serif font-bold mb-8 text-center leading-relaxed">جاري تحميل السؤال...</h2>
+            
+            <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Options injected by JS -->
+            </div>
+        </div>
+
+        <!-- 3. RESULT SECTION -->
+        <div id="resultSection" class="hidden p-8 text-center space-y-6">
+            <i class="fas fa-trophy text-6xl text-islamic-gold mb-4"></i>
+            <h2 class="text-3xl font-bold">انتهى الاختبار!</h2>
+            <div class="text-2xl">
+                نتيجتك هي: <span id="finalScore" class="font-bold text-islamic-green dark:text-islamic-gold text-4xl mx-2">0</span> / <span id="resultTotalQ">30</span>
+            </div>
+            <p id="resultMessage" class="text-lg text-gray-600 dark:text-gray-300"></p>
+            
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button onclick="retakeQuiz()" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold py-3 px-8 rounded-xl transition">
+                    <i class="fas fa-redo ml-2"></i> إعادة الاختبار
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. ADMIN SECTION -->
+        <div id="adminSection" class="hidden p-8 space-y-8">
+            <div class="flex justify-between items-center bg-islamic-green text-white p-4 rounded-xl shadow-md">
+                <h2 class="text-2xl font-bold"><i class="fas fa-user-shield ml-2"></i> لوحة تحكم المشرف</h2>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm font-bold">تسجيل خروج</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b dark:border-gray-700">
+                <button onclick="switchAdminTab('students')" id="tabStudents" class="flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold">سجل الطلاب</button>
+                <button onclick="switchAdminTab('ai')" id="tabAi" class="flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300">إضافة أسئلة AI</button>
+            </div>
+
+            <!-- Students Tab -->
+            <div id="adminStudentsTab" class="space-y-4">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                                <th class="p-3 border-b dark:border-gray-700">اسم الطالب</th>
+                                <th class="p-3 border-b dark:border-gray-700">الدرجة</th>
+                                <th class="p-3 border-b dark:border-gray-700">التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- AI Generator Tab -->
+            <div id="adminAiTab" class="hidden space-y-6">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <h3 class="text-xl font-bold mb-4 text-blue-800 dark:text-blue-300"><i class="fas fa-robot ml-2"></i> توليد أسئلة بالذكاء الاصطناعي</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block mb-2 text-sm font-bold">عدد الأسئلة المطلوبة</label>
+                            <input type="number" id="aiQCount" value="5" min="1" max="20" class="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-bold">مستوى الصعوبة</label>
+                            <select id="aiQDifficulty" class="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                                <option value="سهل">سهل</option>
+                                <option value="متوسط" selected>متوسط</option>
+                                <option value="صعب">صعب</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="btnGenerateAI" onclick="generateAIQuestions()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
+                        <i class="fas fa-magic ml-2"></i> توليد وإضافة للبنك
+                    </button>
+                    <p id="aiStatus" class="text-sm mt-3 text-center hidden font-bold"></p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">بنك الأسئلة الحالي (<span id="totalQuestionsCount">0</span>)</h3>
+                    <div id="questionsList" class="space-y-2 max-h-60 overflow-y-auto border dark:border-gray-700 p-2 rounded">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase Configuration (Provided by user)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCA4tJeZiDUKqEezjlW8UPS9Xv-EnHfwrc",
+            authDomain: "unity-msaed.firebaseapp.com",
+            projectId: "unity-msaed",
+            storageBucket: "unity-msaed.firebasestorage.app",
+            messagingSenderId: "237281388685",
+            appId: "1:237281388685:web:d9d143eeba27a5193b1ac4",
+            measurementId: "G-2QE1ZF3NNT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Constants & State
+        const ADMIN_NAME = "منتصر محمد راغب يونس";
+        const AI_KEY = "AIzaSyCvqnXe3Zz0l0WJ8sdPcvbjofpcpvf88sU"; // Provided by user
+        
+        let currentUser = null;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredQuestionsCount = 0;
+
+        // Base Questions to seed DB if empty
+        const initialQuestions = [
+            { text: "من هو ناظم القصيدة الخاقانية؟", options: ["أبو مزاحم الخاقاني", "ابن الجزري", "الشاطبي", "الخليل بن أحمد"], correctIndex: 0 },
+            { text: "في أي علم من علوم القرآن تصنف القصيدة الخاقانية؟", options: ["علم التفسير", "علم القراءات", "علم التجويد", "علم الرسم"], correctIndex: 2 },
+            { text: "كم عدد أبيات القصيدة الخاقانية؟", options: ["51 بيتاً", "100 بيت", "109 أبيات", "40 بيتاً"], correctIndex: 0 },
+            { text: "متى توفي الناظم أبو مزاحم الخاقاني؟", options: ["325 هـ", "590 هـ", "400 هـ", "300 هـ"], correctIndex: 0 },
+            { text: "القصيدة الخاقانية تعتبر...", options: ["أول ما صُنف في التجويد نظماً", "آخر ما صنف في التجويد", "أطول قصيدة في التجويد", "منظومة في النحو"], correctIndex: 0 }
+        ];
+
+        // Make functions globally available
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+
+        // Initialize App
+        async function init() {
+            setupThemeToggle();
+            await loadQuestionsFromDB();
+            checkSession();
+        }
+
+        // Theme Handling
+        function setupThemeToggle() {
+            const btn = document.getElementById('themeToggle');
+            const html = document.documentElement;
+            
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                html.classList.add('dark');
+            } else {
+                html.classList.remove('dark');
+            }
+
+            btn.addEventListener('click', () => {
+                html.classList.toggle('dark');
+                if(html.classList.contains('dark')){
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        }
+
+        // Fetch Questions
+        async function loadQuestionsFromDB() {
+            try {
+                const qSnapshot = await getDocs(collection(db, "khaqaniyyah_questions"));
+                questions = [];
+                qSnapshot.forEach((doc) => {
+                    questions.push(doc.data());
+                });
+
+                // If no questions exist, seed initial ones
+                if (questions.length === 0) {
+                    console.log("Seeding initial questions...");
+                    for (const q of initialQuestions) {
+                        await addDoc(collection(db, "khaqaniyyah_questions"), q);
+                        questions.push(q);
+                    }
+                }
+                
+                // Shuffle questions
+                questions = questions.sort(() => Math.random() - 0.5);
+                document.getElementById('totalQNum').innerText = Math.min(30, questions.length);
+                document.getElementById('resultTotalQ').innerText = Math.min(30, questions.length);
+
+            } catch (e) {
+                console.error("Error loading questions:", e);
+                // Fallback to local
+                questions = [...initialQuestions].sort(() => Math.random() - 0.5);
+            }
+        }
+
+        // Session Management
+        async function checkSession() {
+            const savedName = localStorage.getItem('khaqaniyyah_user');
+            if (savedName) {
+                if (savedName === ADMIN_NAME) {
+                    showSection('adminSection');
+                    initAdminPanel();
+                } else {
+                    // Check if student has previous score
+                    try {
+                        const userDoc = await getDoc(doc(db, "khaqaniyyah_students", savedName));
+                        if (userDoc.exists()) {
+                            const data = userDoc.data();
+                            currentUser = savedName;
+                            score = data.score;
+                            updateUserInfo(savedName);
+                            showResultSection();
+                        } else {
+                            // User saved locally but not in DB, clear local
+                            localStorage.removeItem('khaqaniyyah_user');
+                            showSection('loginSection');
+                        }
+                    } catch (e) {
+                        showSection('loginSection');
+                    }
+                }
+            } else {
+                showSection('loginSection');
+            }
+        }
+
+        // UI Helpers
+        function showSection(id) {
+            ['loginSection', 'quizSection', 'resultSection', 'adminSection'].forEach(sec => {
+                document.getElementById(sec).classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function updateUserInfo(name) {
+            const ui = document.getElementById('userInfo');
+            ui.classList.remove('hidden');
+            document.getElementById('displayUserName').innerText = name;
+        }
+
+        // --- LOGIN LOGIC ---
+        window.startLogin = async function() {
+            const input = document.getElementById('userNameInput').value.trim();
+            const err = document.getElementById('loginError');
+            
+            if (input === ADMIN_NAME) {
+                localStorage.setItem('khaqaniyyah_user', input);
+                currentUser = input;
+                updateUserInfo(input);
+                showSection('adminSection');
+                initAdminPanel();
+                return;
+            }
+
+            const words = input.split(' ').filter(w => w.length > 0);
+            if (words.length < 4) {
+                err.classList.remove('hidden');
+                return;
+            }
+            err.classList.add('hidden');
+
+            currentUser = words.join(' ');
+            localStorage.setItem('khaqaniyyah_user', currentUser);
+            updateUserInfo(currentUser);
+            
+            // Check if already taken
+            try {
+                const userDoc = await getDoc(doc(db, "khaqaniyyah_students", currentUser));
+                if (userDoc.exists()) {
+                    score = userDoc.data().score;
+                    showResultSection();
+                    return;
+                }
+            } catch (e) { console.error(e); }
+
+            // Start new test
+            startQuiz();
+        }
+
+        window.logout = function() {
+            localStorage.removeItem('khaqaniyyah_user');
+            currentUser = null;
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('userNameInput').value = '';
+            showSection('loginSection');
+        }
+
+        // --- QUIZ LOGIC ---
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredQuestionsCount = 0;
+            questions = questions.sort(() => Math.random() - 0.5); // reshuffle
+            showSection('quizSection');
+            renderQuestion();
+        }
+
+        window.retakeQuiz = function() {
+            startQuiz();
+        }
+
+        function renderQuestion() {
+            const maxQ = Math.min(30, questions.length);
+            if (answeredQuestionsCount >= maxQ || currentQuestionIndex >= questions.length) {
+                finishQuiz();
+                return;
+            }
+
+            const q = questions[currentQuestionIndex];
+            document.getElementById('currentQNum').innerText = answeredQuestionsCount + 1;
+            document.getElementById('currentScore').innerText = score;
+            
+            const progress = (answeredQuestionsCount / maxQ) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+
+            document.getElementById('questionText').innerText = q.text;
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition text-right w-full";
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(btn, idx, q.correctIndex);
+                container.appendChild(btn);
+            });
+        }
+
+        window.handleAnswer = function(btn, selectedIdx, correctIdx) {
+            // Disable all buttons
+            const buttons = document.getElementById('optionsContainer').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            if (selectedIdx === correctIdx) {
+                btn.classList.add('correct-ans');
+                score++;
+                fireConfetti();
+            } else {
+                btn.classList.add('wrong-ans');
+                // Highlight correct answer
+                buttons[correctIdx].classList.add('correct-ans');
+                buttons[correctIdx].classList.remove('border-gray-200', 'dark:border-gray-600');
+            }
+
+            answeredQuestionsCount++;
+            currentQuestionIndex++;
+
+            setTimeout(() => {
+                renderQuestion();
+            }, 1500);
+        }
+
+        function fireConfetti() {
+            var duration = 1500;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#064e3b', '#d97706', '#34d399']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#064e3b', '#d97706', '#34d399']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        async function finishQuiz() {
+            document.getElementById('finalScore').innerText = score;
+            const maxQ = Math.min(30, questions.length);
+            const percentage = score / maxQ;
+            let msg = "";
+            if (percentage >= 0.9) msg = "ما شاء الله! ممتاز جداً، حفظ متقن وفهم عميق.";
+            else if (percentage >= 0.7) msg = "جيد جداً! تحتاج مراجعة بسيطة لتكون متقناً.";
+            else msg = "عليك بمراجعة المنظومة مرة أخرى، الاستمرار يولد الإتقان.";
+            
+            document.getElementById('resultMessage').innerText = msg;
+            showSection('resultSection');
+
+            // Save to Firebase
+            try {
+                await setDoc(doc(db, "khaqaniyyah_students", currentUser), {
+                    name: currentUser,
+                    score: score,
+                    total: maxQ,
+                    timestamp: new Date().toISOString()
+                });
+            } catch (e) {
+                console.error("Error saving score", e);
+            }
+        }
+
+        // --- ADMIN LOGIC ---
+        window.switchAdminTab = function(tab) {
+            const tStudents = document.getElementById('tabStudents');
+            const tAi = document.getElementById('tabAi');
+            const cStudents = document.getElementById('adminStudentsTab');
+            const cAi = document.getElementById('adminAiTab');
+
+            if (tab === 'students') {
+                tStudents.className = "flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold";
+                tAi.className = "flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300";
+                cStudents.classList.remove('hidden');
+                cAi.classList.add('hidden');
+            } else {
+                tAi.className = "flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold";
+                tStudents.className = "flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300";
+                cAi.classList.remove('hidden');
+                cStudents.classList.add('hidden');
+                renderAdminQuestionsList();
+            }
+        }
+
+        async function initAdminPanel() {
+            // Listen to students collection
+            const q = query(collection(db, "khaqaniyyah_students"));
+            onSnapshot(q, (snapshot) => {
+                const tbody = document.getElementById('studentsTableBody');
+                tbody.innerHTML = '';
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const date = new Date(data.timestamp).toLocaleDateString('ar-SA');
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50";
+                    tr.innerHTML = `
+                        <td class="p-3 font-medium">${data.name}</td>
+                        <td class="p-3 text-islamic-green dark:text-islamic-gold font-bold">${data.score} / ${data.total}</td>
+                        <td class="p-3 text-sm">${date}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        function renderAdminQuestionsList() {
+            document.getElementById('totalQuestionsCount').innerText = questions.length;
+            const list = document.getElementById('questionsList');
+            list.innerHTML = '';
+            questions.forEach((q, i) => {
+                const div = document.createElement('div');
+                div.className = "p-2 border-b dark:border-gray-700 text-sm";
+                div.innerText = `${i+1}. ${q.text}`;
+                list.appendChild(div);
+            });
+        }
+
+        window.generateAIQuestions = async function() {
+            const count = document.getElementById('aiQCount').value;
+            const difficulty = document.getElementById('aiQDifficulty').value;
+            const btn = document.getElementById('btnGenerateAI');
+            const status = document.getElementById('aiStatus');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري التوليد...';
+            status.classList.remove('hidden');
+            status.className = "text-sm mt-3 text-center font-bold text-blue-600";
+            status.innerText = "الذكاء الاصطناعي يقوم بصياغة الأسئلة، يرجى الانتظار...";
+
+            const promptText = `أنت خبير في علم التجويد والقصيدة الخاقانية لأبي مزاحم الخاقاني. 
+            قم بتأليف ${count} أسئلة بمستوى "${difficulty}" عن أبيات ومعاني وأحكام منظومة الخاقانية. 
+            يجب أن يكون الناتج بصيغة JSON فقط، عبارة عن مصفوفة (Array) تحتوي على كائنات (Objects) بالشكل التالي بالضبط:
+            [
+              {
+                "text": "نص السؤال هنا؟",
+                "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+                "correctIndex": 0 // رقم يمثل الإجابة الصحيحة من 0 إلى 3
+              }
+            ]
+            لا تكتب أي نص آخر غير كود ال JSON.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${AI_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+
+                const generatedText = data.candidates[0].content.parts[0].text;
+                const newQuestions = JSON.parse(generatedText);
+
+                if (!Array.isArray(newQuestions)) throw new Error("Format error from AI");
+
+                // Save to DB
+                let added = 0;
+                for (const q of newQuestions) {
+                    if (q.text && q.options && q.options.length === 4 && typeof q.correctIndex === 'number') {
+                        await addDoc(collection(db, "khaqaniyyah_questions"), q);
+                        questions.push(q);
+                        added++;
+                    }
+                }
+
+                status.className = "text-sm mt-3 text-center font-bold text-green-600 dark:text-green-400";
+                status.innerText = `تمت إضافة ${added} أسئلة بنجاح!`;
+                renderAdminQuestionsList();
+
+            } catch (err) {
+                console.error(err);
+                status.className = "text-sm mt-3 text-center font-bold text-red-600 dark:text-red-400";
+                status.innerText = "حدث خطأ أثناء التوليد. الرجاء المحاولة مرة أخرى.";
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic ml-2"></i> توليد وإضافة للبنك';
+            }
+        }
+
+        // Boot
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>                        dark: {
                             bg: '#0f172a',
                             card: '#1e293b',
                             text: '#f8fafc'
