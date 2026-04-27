@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار المنظومة الخاقانية</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts (Tajawal for Arabic) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Certificate Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                        serif: ['Amiri', 'serif'],
+                    },
+                    colors: {
+                        islamic: {
+                            light: '#ecfdf5',
+                            green: '#064e3b',
+                            gold: '#d97706',
+                            glow: '#34d399'
+                        },
+                        dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            text: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
+        }
+
+        .correct-ans {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+        }
+
+        .wrong-ans {
+            background-color: #ef4444 !important;
+            color: white !important;
+            border-color: #b91c1c !important;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .islamic-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .dark .islamic-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23fbbf24' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Certificate Template Styling - Improved Organization */
+        #certificateTemplate {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 1120px; /* عرض أكبر لتنظيم أفضل */
+            height: 790px;
+            background-color: #fff9f0;
+            background-image: radial-gradient(rgba(217, 119, 6, 0.05) 1.5px, transparent 1.5px);
+            background-size: 40px 40px;
+            padding: 30px;
+            font-family: 'Tajawal', sans-serif;
+            text-align: center;
+        }
+
+        .cert-outer-border {
+            border: 12px solid #064e3b;
+            height: 100%;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .cert-inner-border {
+            border: 4px double #d97706;
+            height: 100%;
+            width: 100%;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; /* توزيع متوازن للعناصر */
+            position: relative;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-islamic-light dark:bg-dark-bg text-gray-800 dark:text-dark-text min-h-screen islamic-pattern flex flex-col items-center justify-center p-4">
+
+    <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-center z-50">
+        <button id="themeToggle"
+            class="p-2 rounded-full bg-white dark:bg-dark-card shadow-md text-islamic-green dark:text-islamic-gold hover:scale-110 transition">
+            <i class="fas fa-moon dark:hidden"></i>
+            <i class="fas fa-sun hidden dark:block"></i>
+        </button>
+        
+        <div class="flex items-center gap-2">
+            <div id="userInfo"
+                class="hidden font-bold bg-white dark:bg-dark-card px-4 py-2 rounded-full shadow-md text-islamic-green dark:text-islamic-gold">
+                <i class="fas fa-user ml-2"></i> <span id="displayUserName"></span>
+            </div>
+            <button id="infoBtn" onclick="showDeveloperInfo()"
+                class="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-dark-card shadow-md text-islamic-green dark:text-islamic-gold hover:scale-110 transition font-bold text-xl" title="معلومات المطور">
+                !
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div
+        class="w-full max-w-3xl bg-white dark:bg-dark-card rounded-2xl shadow-2xl overflow-hidden border-t-4 border-islamic-green dark:border-islamic-gold transition-all duration-300">
+
+        <!-- HEADER -->
+        <div class="p-6 text-center border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <h1 class="text-3xl font-serif font-bold text-islamic-green dark:text-islamic-gold mb-2">
+                <i class="fas fa-book-quran ml-2"></i> روضة الخاقانية
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">اختبر معلوماتك في أول منظومة في علم التجويد</p>
+        </div>
+
+        <!-- 1. LOGIN SECTION -->
+        <div id="loginSection" class="p-8 text-center">
+            <!-- تعليمات الاختبار -->
+            <div class="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-2xl border border-amber-200 dark:border-amber-800 text-right mb-8 shadow-sm">
+                <h3 class="text-amber-800 dark:text-amber-300 font-bold mb-4 flex items-center text-lg">
+                    <i class="fas fa-exclamation-circle ml-2"></i> تنبيهات هامة قبل البدء:
+                </h3>
+                <ul class="text-gray-700 dark:text-gray-300 space-y-3 pr-2">
+                    <li class="flex items-start"><i class="fas fa-check text-amber-600 mt-1 ml-2 text-xs"></i> <span>استعن بالله وأجب مما تعلمت.</span></li>
+                    <li class="flex items-start"><i class="fas fa-check text-amber-600 mt-1 ml-2 text-xs"></i> <span>غير مسموح بالحل الجماعي.</span></li>
+                    <li class="flex items-start"><i class="fas fa-check text-amber-600 mt-1 ml-2 text-xs"></i> <span>غير مسموح باستخدام أي وسيلة للإجابة كالشبكة العنكبوتية.</span></li>
+                    <li class="flex items-start font-bold text-amber-900 dark:text-amber-200"><i class="fas fa-heart text-red-500 mt-1 ml-2 text-xs"></i> <span>ضع الله نصب عينيك واعلم أنه من غشنا فليس منا، وفقك الله.</span></li>
+                </ul>
+            </div>
+
+            <div class="space-y-4">
+                <label class="block text-lg font-bold">الرجاء إدخال اسمك الرباعي للبدء</label>
+                <input type="text" id="userNameInput" placeholder="مثال: أحمد محمد علي عبدالله"
+                    class="w-full p-4 text-lg border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-islamic-green dark:focus:border-islamic-gold focus:ring-0 bg-transparent text-center transition">
+                <p id="loginError" class="text-red-500 text-sm hidden">يجب إدخال الاسم الرباعي بشكل صحيح (4 كلمات على
+                    الأقل).</p>
+            </div>
+            <button onclick="startLogin()"
+                class="w-full bg-islamic-green hover:bg-green-800 dark:bg-islamic-gold dark:hover:bg-yellow-600 text-white font-bold py-4 rounded-xl text-xl transition glow-effect">
+                اختبر الآن <i class="fas fa-arrow-left mr-2"></i>
+            </button>
+        </div>
+
+        <!-- 2. QUIZ SECTION -->
+        <div id="quizSection" class="hidden p-8">
+            <div class="flex justify-between items-center mb-6 text-sm font-bold text-gray-500 dark:text-gray-400">
+                <span>السؤال <span id="currentQNum">1</span> من <span id="totalQNum">30</span></span>
+                <span>النتيجة: <span id="currentScore">0</span></span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-8">
+                <div id="progressBar"
+                    class="bg-islamic-green dark:bg-islamic-gold h-2.5 rounded-full transition-all duration-500"
+                    style="width: 0%"></div>
+            </div>
+
+            <h2 id="questionText" class="text-2xl font-serif font-bold mb-8 text-center leading-relaxed">جاري تحميل
+                السؤال...</h2>
+
+            <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Options injected by JS -->
+            </div>
+        </div>
+
+        <!-- 3. RESULT SECTION -->
+        <div id="resultSection" class="hidden p-8 text-center space-y-6">
+            <i class="fas fa-trophy text-6xl text-islamic-gold mb-4"></i>
+            <h2 class="text-3xl font-bold">انتهى الاختبار!</h2>
+            <div class="text-2xl">
+                نتيجتك هي: <span id="finalScore"
+                    class="font-bold text-islamic-green dark:text-islamic-gold text-4xl mx-2">0</span> / <span
+                    id="resultTotalQ">30</span>
+            </div>
+            <p id="resultMessage" class="text-lg text-gray-600 dark:text-gray-300"></p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button id="certBtn-current" onclick="generateCertificate(null)"
+                    class="bg-islamic-gold hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg">
+                    <i class="fas fa-file-pdf ml-2"></i> استخراج الشهادة ومشاركتها
+                </button>
+                <button onclick="retakeQuiz()"
+                    class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold py-3 px-8 rounded-xl transition">
+                    <i class="fas fa-redo ml-2"></i> إعادة الاختبار
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. ADMIN SECTION -->
+        <div id="adminSection" class="hidden p-8 space-y-8">
+            <div class="flex justify-between items-center bg-islamic-green text-white p-4 rounded-xl shadow-md">
+                <h2 class="text-2xl font-bold"><i class="fas fa-user-shield ml-2"></i> لوحة تحكم المشرف</h2>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm font-bold">تسجيل
+                    خروج</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b dark:border-gray-700">
+                <button onclick="switchAdminTab('students')" id="tabStudents"
+                    class="flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold">سجل
+                    الطلاب</button>
+                <button onclick="switchAdminTab('ai')" id="tabAi"
+                    class="flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300">إضافة
+                    أسئلة AI</button>
+                <button onclick="switchAdminTab('data')" id="tabData"
+                    class="flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300">إدارة
+                    البيانات</button>
+            </div>
+
+            <!-- Students Tab -->
+            <div id="adminStudentsTab" class="space-y-4">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                                <th class="p-3 border-b dark:border-gray-700">اسم الطالب</th>
+                                <th class="p-3 border-b dark:border-gray-700">الدرجة</th>
+                                <th class="p-3 border-b dark:border-gray-700">التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- AI Generator Tab -->
+            <div id="adminAiTab" class="hidden space-y-6">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <h3 class="text-xl font-bold mb-4 text-blue-800 dark:text-blue-300"><i
+                            class="fas fa-robot ml-2"></i> توليد أسئلة بالذكاء الاصطناعي</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block mb-2 text-sm font-bold">عدد الأسئلة المطلوبة</label>
+                            <input type="number" id="aiQCount" value="5" min="1" max="20"
+                                class="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                        </div>
+                        <div>
+                            <label class="block mb-2 text-sm font-bold">مستوى الصعوبة</label>
+                            <select id="aiQDifficulty"
+                                class="w-full p-3 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                                <option value="سهل">سهل</option>
+                                <option value="متوسط" selected>متوسط</option>
+                                <option value="صعب">صعب</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="btnGenerateAI" onclick="generateAIQuestions()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
+                        <i class="fas fa-magic ml-2"></i> توليد وإضافة للبنك
+                    </button>
+                    <p id="aiStatus" class="text-sm mt-3 text-center hidden font-bold"></p>
+                </div>
+
+                <div>
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
+                        <h3 class="text-xl font-bold">بنك الأسئلة الحالي (<span id="totalQuestionsCount">0</span>)</h3>
+                        <div class="relative w-full md:w-64">
+                            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                            <input type="text" id="searchQuestionInput" onkeyup="filterAdminQuestions()" placeholder="ابحث عن سؤال..." class="w-full pr-10 pl-4 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 text-sm focus:border-islamic-green focus:ring-0">
+                        </div>
+                    </div>
+                    <div id="questionsList"
+                        class="space-y-2 max-h-60 overflow-y-auto border dark:border-gray-700 p-2 rounded">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management Tab -->
+            <div id="adminDataTab" class="hidden space-y-6">
+                <div class="bg-red-50 dark:bg-red-900/20 p-6 rounded-xl border border-red-200 dark:border-red-800">
+                    <h3 class="text-xl font-bold mb-4 text-red-800 dark:text-blue-300"><i
+                            class="fas fa-exclamation-triangle ml-2"></i> منطقة العمليات الحساسة</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">هذه العمليات تؤدي لحذف البيانات بشكل نهائي. يرجى الحذر.</p>
+                    
+                    <div class="space-y-4">
+                        <button id="btnResetBank" onclick="resetQuestionBank()"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition shadow-lg flex items-center justify-center">
+                            <i class="fas fa-sync ml-2"></i> تحديث بنك الأسئلة (حذف الكل وإضافة الأربعين الجديدة)
+                        </button>
+                        
+                        <button id="btnDeleteStudents" onclick="deleteAllStudents()"
+                            class="w-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-red-600 font-bold py-4 px-6 rounded-xl transition flex items-center justify-center">
+                            <i class="fas fa-user-times ml-2"></i> مسح سجل الطلاب بالكامل
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </div>
+            
+            <!-- Edit Question Modal -->
+            <div id="editQuestionModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-lg shadow-2xl border dark:border-gray-700">
+                    <h3 class="text-xl font-bold mb-4 text-islamic-green dark:text-islamic-gold">تعديل السؤال</h3>
+                    <input type="hidden" id="editQId">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block mb-2 font-bold text-sm">نص السؤال</label>
+                            <input type="text" id="editQText" class="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-bold text-sm text-gray-600 dark:text-gray-400">الخيار الأول</label>
+                            <input type="text" id="editQOpt0" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-bold text-sm text-gray-600 dark:text-gray-400">الخيار الثاني</label>
+                            <input type="text" id="editQOpt1" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-bold text-sm text-gray-600 dark:text-gray-400">الخيار الثالث (اختياري)</label>
+                            <input type="text" id="editQOpt2" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-bold text-sm text-red-500">رقم الإجابة الصحيحة (1 أو 2 أو 3)</label>
+                            <input type="number" id="editQCorrect" min="1" max="3" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-center font-bold">
+                        </div>
+                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <button onclick="saveEditedQuestion()" class="bg-islamic-green hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold flex-1 transition">حفظ التعديلات</button>
+                        <button onclick="document.getElementById('editQuestionModal').classList.add('hidden')" class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-white px-4 py-2 rounded-lg font-bold flex-1 transition">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="certificateTemplate">
+        <div class="cert-outer-border">
+            <div class="cert-inner-border">
+                <!-- زخارف علوية -->
+                <div style="position: absolute; top: 15px; left: 15px; color: #d97706; opacity: 0.6;"><i class="fas fa-mosque fa-3x"></i></div>
+                <div style="position: absolute; top: 15px; right: 15px; color: #d97706; opacity: 0.6;"><i class="fas fa-mosque fa-3x"></i></div>
+                
+                <!-- المحتوى العلوي - تم رفعه وإصلاح التداخل -->
+                <div style="margin-top: -10px;">
+                    <h1 style="font-family: 'Amiri', serif; font-size: 68px; color: #064e3b; margin: 0 0 10px 0; line-height: 1.3;">نتيجة اختبار</h1>
+                    <h2 style="font-size: 30px; color: #d97706; margin: 0; font-weight: bold;">في منظومة الخاقانية في التجويد</h2>
+                </div>
+
+                <!-- المحتوى الأوسط -->
+                <div style="margin: 20px 0;">
+                    <p style="font-size: 24px; color: #4b5563; margin-bottom: 10px;">نمنح هذه الشهادة بكل فخر واعتزاز للطالب:</p>
+                    <p id="certStudentName" style="font-size: 52px; font-weight: 900; color: #064e3b; border-bottom: 4px double #d97706; display: inline-block; padding: 0 70px; margin-bottom: 15px; min-width: 450px;"></p>
+                    <p style="font-size: 24px; color: #4b5563;">وذلك لاجتيازه الاختبار بنجاح باهر وحصوله على درجة:</p>
+                </div>
+
+                <!-- الدرجة -->
+                <div style="background: linear-gradient(135deg, #064e3b, #10b981); color: white; padding: 12px 60px; border-radius: 18px; font-size: 46px; font-weight: 900; box-shadow: 0 8px 15px rgba(6, 78, 59, 0.2); display: inline-block; margin-bottom: 30px;">
+                    <span id="certScore">0</span> من <span id="certTotal">30</span>
+                </div>
+
+                <!-- التوقيع والتاريخ - تم رفعه للأعلى بمسافة 60px عن الحافة -->
+                <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 40px; margin-bottom: 60px;">
+                    <div style="text-align: right; flex: 1;">
+                        <p style="font-size: 18px; color: #6b7280; margin-bottom: 3px;">تحريراً في:</p>
+                        <p style="font-size: 22px; color: #064e3b; font-weight: bold;"><span id="certDay"></span>: <span id="certDate"></span></p>
+                    </div>
+                    
+                    <div style="flex: 1; text-align: center; padding-bottom: 10px;">
+                        <i class="fas fa-award fa-5x text-islamic-gold" style="filter: drop-shadow(0 4px 8px rgba(217, 119, 6, 0.3));"></i>
+                    </div>
+
+                    <div style="text-align: left; flex: 1;">
+                        <p style="font-size: 18px; color: #6b7280; margin-bottom: 3px;">مقدمة من:</p>
+                        <p style="font-weight: 900; color: #064e3b; font-size: 26px;">الدورة القرءانية</p>
+                    </div>
+                </div>
+
+                <!-- زخارف سفلية - تم تصغيرها وإزاحتها للزوايا القصوى -->
+                <div style="position: absolute; bottom: 10px; left: 10px; color: #d97706; opacity: 0.4;"><i class="fas fa-star-and-crescent fa-2x"></i></div>
+                <div style="position: absolute; bottom: 10px; right: 10px; color: #d97706; opacity: 0.4;"><i class="fas fa-star-and-crescent fa-2x"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Developer Info Modal -->
+    <div id="developerModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-dark-card p-8 rounded-3xl w-full max-w-md shadow-2xl border-t-4 border-islamic-green dark:border-islamic-gold transform transition-all">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-islamic-light dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                    <i class="fas fa-info text-3xl text-islamic-green dark:text-islamic-gold"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4 text-islamic-green dark:text-islamic-gold">معلومات المطور</h3>
+                
+                <div class="space-y-6 text-right">
+                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed text-center">
+                        تم تطوير هذا التطبيق بواسطة <br>
+                        <span class="font-bold text-xl text-islamic-green dark:text-islamic-gold">شركة اكس برايمنت Expraiment</span>
+                    </p>
+                    
+                    <div class="space-y-3">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 font-bold mb-1">للتواصل:</p>
+                        
+                        <a href="mailto:mohammedmonta2022m@gmail.com" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                            <i class="fas fa-envelope text-red-500 w-6"></i>
+                            <span class="text-sm font-medium">mohammedmonta2022m@gmail.com</span>
+                        </a>
+                        
+                        <a href="https://www.instagram.com/mohamed_montasserr?fbclid=IwY2xjawRccjxleHRuA2FlbQIxMABicmlkETF0UWw0UW5tb0lyUEFzTk8zc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHu0yNSEOC-sRiks4NkvqAeYVUUHbwOfFxqdxautCtklCxI1yrJU-w3oyvWNa_aem_VSap1fuDYxHyuqTph1ADGg" target="_blank" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                            <i class="fab fa-instagram text-pink-600 w-6"></i>
+                            <span class="text-sm font-medium">انستقرام</span>
+                        </a>
+                        
+                        <a href="https://www.facebook.com/profile.php?id=61565281545480&locale=ar_AR" target="_blank" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                            <i class="fab fa-facebook text-blue-600 w-6"></i>
+                            <span class="text-sm font-medium">فيسبوك</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <button onclick="closeDeveloperInfo()" class="mt-8 w-full bg-islamic-green dark:bg-islamic-gold text-white font-bold py-4 rounded-xl hover:opacity-90 transition shadow-lg">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, query, orderBy, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase Configuration (Provided by user)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCA4tJeZiDUKqEezjlW8UPS9Xv-EnHfwrc",
+            authDomain: "unity-msaed.firebaseapp.com",
+            projectId: "unity-msaed",
+            storageBucket: "unity-msaed.firebasestorage.app",
+            messagingSenderId: "237281388685",
+            appId: "1:237281388685:web:d9d143eeba27a5193b1ac4",
+            measurementId: "G-2QE1ZF3NNT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Constants & State
+        const ADMIN_NAME = "منتصر محمد راغب يونس";
+        const AI_KEY = "AIzaSyBpPKjD6uSleeSFMowsKPjvUU6adalAicA"; // Provided by user
+
+        let currentUser = null;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredQuestionsCount = 0;
+
+        // Base Questions to seed DB if empty
+        const initialQuestions = [
+            { text: "هذه المنظومة تُنسب إلى علم ........ ؟", options: ["التجويد", "القراءات", "الرسم"], correctIndex: 0 },
+            { text: "هذه المنظومة من بحر ...... .", options: ["الرجز", "الطويل", "الوافر"], correctIndex: 1 },
+            { text: "توفي الإمام الخاقاني عام ..... هـ .", options: ["275", "325", "375"], correctIndex: 1 },
+            { text: "ذكر الناظم اسمه في ......... .", options: ["أول المنظومة", "وسط المنظومة", "آخر المنظومة"], correctIndex: 2 },
+            { text: "ذكر الناظم عدد أبيات المنظومة في .......... .", options: ["أول المنظومة", "آخر المنظومة", "لم يذكره"], correctIndex: 1 },
+            { text: "قول الناظم : قد قلت قولا ما سبقت بمثله ... في وصف حذق قراءة القرآن يدل على ..........", options: ["سبقه الزمني في هذا العلم", "سبقه المعرفي في هذا العلم", "تواضعه الشديد"], correctIndex: 0 },
+            { text: "أول أبيات هذه المنظومة ؟", options: ["أيا قارئ القرآن أحسن أداءه ... يضاعف لك الله الجزيل من الأجر", "ألا فاحفظوا وصفي لكم ما اختصرته ... ليدري به من لم يكن منكم يدري", "أقول مقالا معجبا لأولي الحجر ... ولا فخر إن الفخر يدعو إلى الكبر"], correctIndex: 2 },
+            { text: "قال الناظم : أعلم في القول التلاوة عائذا ... بمولاي من شر المباهاة والفخر. ما المقصود بـ (مولاي) ؟", options: ["مولاه أي : خادمه", "مولاه أي : سيده", "مولاه أي : الله سبحانه وتعالى"], correctIndex: 2 },
+            { text: "قال الناظم : وأسأله عني التجاوز في غد. ما المقصود بـ (غد) ؟", options: ["اليوم التالي", "القبر", "يوم القيامة"], correctIndex: 2 },
+            { text: "قال الناظم : فللسبعة القراء حق على الورى ... لإقرائهم قرآن ربهم الوتر. كلمة (الوتر) هي صفة لكلمة ....... .", options: ["قرآن", "ربهم", "القراء"], correctIndex: 0 },
+            { text: "مِن القراء السبعة الذين ذكرهم الناظم ...... .", options: ["أبو جعفر", "يعقوب", "ابن عامر"], correctIndex: 2 },
+            { text: "قال الناظم : فبالحرمين ابنُ كثيرٍ ونافعٌ. إلى أي البلاد يُنسب الإمام ابن كثير ؟", options: ["مكة", "المدينة", "مكة والمدينة معًا لأنه قال (فبالحرمين)"], correctIndex: 0 },
+            { text: "يُنسب الإمام أبو عمرو إلى ...... .", options: ["البصرة", "الكوفة", "الشام"], correctIndex: 0 },
+            { text: "ذكر الناظم كنية الإمام عاصم في المنظومة ، وكنيته هي ..... .", options: ["أبو بكر", "أبو عمرو", "أبو العلاء"], correctIndex: 0 },
+            { text: "عدد قراء الكوفة من القراء السبعة ..... .", options: ["واحد", "اثنان", "ثلاثة"], correctIndex: 2 },
+            { text: "قال الناظم : وحمزة أيضا والكسائي بعده ... أخو الحذق بالقرآن والنحو والشعر. كلمة (الحذق) تعني ...... .", options: ["التشدد", "القوة", "المهارة"], correctIndex: 2 },
+            { text: "ذكر الإمام الخاقاني في منظومته أن القراءة بمرتبة ...... هي الأفضل .", options: ["الترتيل", "الحدر", "لم يذكر الأفضل"], correctIndex: 0 },
+            { text: "قال الناظم : وإما حدرنا درسنا فمرخص. الحدر معناه : قراءة القرآن بسرعة مع عدم مراعاة أحكام التلاوة .", options: ["صحيح", "خطأ"], correctIndex: 1 },
+            { text: "لم يبخل الناظم بعلمه على تلاميذه ، ومما يدل على حبه لتعليمهم قوله ...... .", options: ["يلقنها باغي التعلم بالصبر", "ففي شربة لو كان علمي سقيتكم", "زن الحرف لا تخرجه عن حد وزنه"], correctIndex: 1 },
+            { text: "ما معنى (القِدح) في قول الناظم : ومن يقم القرآن كالقدح فليكن ... مطيعا لأمر الله في السر والجهر", options: ["الإناء الذي يُشرب فيه", "السهم قبل أن يُنصل", "الطريق المُمَهَّد"], correctIndex: 1 },
+            { text: "قال الناظم : ألا اعلم أخي أن الفصاحة زينت ... تلاوة تال أدمن الدرس للذكر. هذا البيت يوافقه في المعنى من الجزرية ..................................", options: ["إذ واجب عليهم محتم ... قبل الشروع أولا أن يعلموا", "وهو أيضا حلية التلاوة ... وزينة الأداء والقراءة", "وليس بينه وبين تركه ... إلا رياضة امرئ بفكه"], correctIndex: 2 },
+            { text: "أول علم الذكر كما أشار الناظم هو ............ .", options: ["إتقان حفظ  القرآن", "معرفة المحكم والمتشابه", "معرفة قواعد اللغة"], correctIndex: 0 },
+            { text: "أشار الناظم في هذه المنظومة إلى ضرورة معرفة القارئ للألحان والأخطاء .", options: ["صحيح", "خطأ"], correctIndex: 0 },
+            { text: "حذًّرنا الناظمُ من الزيادة في أزمنة الحروف وخصوصا عند قراءة القرآن بمرتبة ........ .", options: ["التدوير", "التحقيق", "الحدر"], correctIndex: 1 },
+            { text: "ذكر الناظم الحد الأقصى من وجهة نظره في أخذ القرآن على العلماء وهو ....... في الجلسة .", options: ["خمس أيات", "عشر آيات", "خمسون آية"], correctIndex: 1 },
+            { text: "لم يتكلم الناظم في هذه المنظومة عن ............... .", options: ["ضرورة ضبط موازين الحروف", "ضرورة التغني بالقرآن", "ضرورة الوقف على ما تم معناه"], correctIndex: 2 },
+            { text: "لم يتكلم الناظم في هذه المنظومة عن ........ .", options: ["الإخفاء والإدغام", "المد اللازم", "لام التعريف"], correctIndex: 2 },
+            { text: "أكمل : قال الناظم : وما المد إلا في ثلاثة أحرف ... تسمى (............) باح بها ذكري", options: ["حروف اللين", "حروف الجوف", "حروف العلة"], correctIndex: 2 },
+            { text: "أكمل : قال الناظم : هي ........ المعروف فيها سكونها", options: ["الألف", "الواو", "الياء"], correctIndex: 0 },
+            { text: "قال الناظم : ورقق بيان الراء واللام ينذرب لسانك. ما معنى (ينذرب لسانك) ؟", options: ["يصبح ثقيلا", "يصبح فصيحا", "يصبح بطيء الحركة"], correctIndex: 1 },
+            { text: "قال الناظم : ولا تدغمن الميم إن جئت بعدها ... بحرف سواها. هذا البيت يشير إلى حكم ......... .", options: ["الإدغام بغير غنة", "الإدغام الشفوي", "إدغام المتقاربين"], correctIndex: 1 },
+            { text: "قال الناظم : وضمك قبل الواو كن مشبعا له ... كما أشبعوا إياك نعبد في المر. المقصود بالإشباع هنا هو ........ .", options: ["إتمام الحركة", "اختلاس الحركة", "إشباع الضمة حتى يتولد منها واو"], correctIndex: 0 },
+            { text: "ما المقصود بكلمة (المر) في البيت السابق ؟", options: ["الوقف", "الوصل", "إشارة إلى سورة الرعد لأنها تبدأ بـ (الٓمٓر)"], correctIndex: 2 },
+            { text: "قال الناظم : وإن حرف لين كان من قبل مدغم ... كآخر ما في الحمد فامدده واستجر. المقصود بـ (مدغم) هنا ........ .", options: ["حروف كلمة (يرملون)", "حروف المد الثلاثة", "أي حرف مشدد"], correctIndex: 2 },
+            { text: "سبب المد في حرف الألف في كلمة (الضالين) كما أشار الناظم هو ......... .", options: ["التقاء الساكنين", "وجود الساكن العارض", "لأنها آخر السورة"], correctIndex: 0 },
+            { text: "قال الناظم : وأسمي حروفا ستة لتخصها. ما الحكم الذي تم ذكره بعد هذا الشطر من البيت ؟", options: ["الإظهار الحلقي", "الإظهار الشفوي", "القلقلة"], correctIndex: 0 },
+            { text: "أكمل : قال الناظم : ولا تشدد النون التي يظهرونها ... كقولك (............) لدى سورة الحشر", options: ["من خوف", "من خيل", "من خير"], correctIndex: 1 },
+            { text: "أمرنا الناظم بقياس ....... على النون الساكنة .", options: ["الميم الساكنة", "اللام الساكنة", "التنوين"], correctIndex: 2 },
+            { text: "تم ختم المنظومة بـ ........... .", options: ["الصلاة على النبي", "طلب الدعاء", "التعوذ من الكبر"], correctIndex: 1 },
+            { text: "الاختبار ....... (كل الإجابات سيتم احتسابها أنها إجابة صحيحة)", options: ["سهل", "متوسط", "صعب"], correctIndex: 0 },
+            { text: "معنى (أولي) في البيت الأول:", options: ["أصحاب", "عقل", "المدح"], correctIndex: 0 },
+            { text: "ماذا قصد الناظم بـ (الحِجر) ؟", options: ["الحجارة", "القلب", "العقل"], correctIndex: 2 },
+            { text: "الكبر معناها الاستكبار والتعظم هي صفة:", options: ["ذم", "مدح"], correctIndex: 0 },
+            { text: "المطلوب من الإنسان إذا كثر علمه وازداد فيه ان يزداد:", options: ["تواضعاً وانكساراً بين يدي الله", "استكباراً على خلق الله"], correctIndex: 0 },
+            { text: "ذكر الناظم ان المقصود من هذه القصيدة هو:", options: ["تعلم التجويد", "تعلم التجويد وحسن الأداء", "تعلم التجويد وحسن الأداء وأن يحفظه الله من فتنة الدنيا"], correctIndex: 2 },
+            { text: "واسأله عني التجاوز في غدٍ - المقصود بالغد هو:", options: ["يوم القيامة", "القبر", "اليوم القادم"], correctIndex: 0 },
+            { text: "قال الداني إن الناظم صاغ هذا البيت...... من قول الشاعر علي بن الجهم : فما كلُ من قاد الجياد يسوسُـها / ولا كلُّ من أجرى يقال له مجري", options: ["ألا فاحفظوا وصفي لكم مااختصرته / ليدري به من لم يكن منكم يدري", "فما كلُ من يتلو الكتاب يقميه / ولا كل من في الناس يقرئهم مقري", "فقد قلت في حسن الأداء قصيدة / رجوتُ إلهي ان يَحُطٌْ بها وزري"], correctIndex: 1 },
+            { text: "اكمل الناقص من البيت: وإن لنا أخذ القراءة....... / عن الأولين المقرئين ذوي الستر", options: ["واجبٌ", "سنةٌ", "لازماٌ"], correctIndex: 1 },
+            { text: "فللسبعة القراء حق على الورى / لاقرائهم قرآن ربهم الوتر - مامعنى الورى؟", options: ["المتخفي", "الخَلق من البشر", "الأجر العظيم"], correctIndex: 1 },
+            { text: "كلمة الوتر في البيت السابقة هي ⬅️", options: ["صفة للقرآن", "صفة الله تعالى", "صفة أهل القرآن"], correctIndex: 1 },
+            { text: "ذكر الناظم: فبالحرمين ابن الكثير ونافعٌ - إختاري الإجابة الصحيحة", options: ["ابن الكثير في مكة / نافع في المدينة", "نافع في مكة /ابن الكثير في المدينة"], correctIndex: 0 },
+            { text: "توفي ابن كثير سنة ⬅️", options: ["120هـ", "130هـ", "122هـ"], correctIndex: 0 },
+            { text: "عرض ابن كثير القرآن على الصحابي عبدالله بن السائب", options: ["صح", "خطأ"], correctIndex: 0 },
+            { text: "ذكر الخاقاني في منظومته أن عدد القراء", options: ["سبعة", "عشرة", "لم يذكر"], correctIndex: 0 },
+            { text: "فذو الحذق معط للحروف حقوقها - مامعنى كلمة الحذق", options: ["الماهر في كل عمل", "السريع في القراءة", "الترتيل"], correctIndex: 0 },
+            { text: "اذا رتل القرآن أو كان ذا حدر - معنى كلمة ⬅️ (رتل ، حدر) على التوالي:", options: ["القراءة البطيئة ، علو الصوت", "القراءة السريعة ، الترسل والتبيين", "الترسل والتبيين ، القراءة السريعة"], correctIndex: 2 },
+            { text: "وترتيلنا القرآن أفضل للذي / أمرنا به من مكثنا فيه والفكر", options: ["ترتيل القرآن من أجل التفكر والتدبر", "ترتيل القرآن من أجل الاهتمام بالحروف فقط", "ترتيل القرآن أفضل من التفكر فيه"], correctIndex: 0 },
+            { text: "ففي شربة لو كان علمي سقيتكم / ولم أخف عنكم ذلك العلم بالذخر - مامعنى كلمة⬅️ الذخر", options: ["خبأه لوقت الحاجة", "الشئ الثمين", "العلم الصعب"], correctIndex: 0 },
+            { text: "ذكر الناظم في القصيدة أن عدد ابياتها هي:", options: ["50", "51", "52"], correctIndex: 1 },
+            { text: "من يقم القرآن كالقدح فليكن مطيعاً لامرالله في السر والجهر ⬅️ معنى القِدح:", options: ["الكوب", "السهم الذي لم ينصل", "الكتاب"], correctIndex: 1 }
+        ];
+
+        // Make functions globally available
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.setDoc = setDoc;
+        window.doc = doc;
+
+        // Initialize App
+        async function init() {
+            setupThemeToggle();
+            await loadQuestionsFromDB();
+            checkSession();
+        }
+
+        // Theme Handling
+        function setupThemeToggle() {
+            const btn = document.getElementById('themeToggle');
+            const html = document.documentElement;
+
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                html.classList.add('dark');
+            } else {
+                html.classList.remove('dark');
+            }
+
+            btn.addEventListener('click', () => {
+                html.classList.toggle('dark');
+                if (html.classList.contains('dark')) {
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        }
+
+        // Fetch Questions
+        async function loadQuestionsFromDB() {
+            try {
+                const qSnapshot = await getDocs(collection(db, "khaqaniyyah_questions"));
+                questions = [];
+                qSnapshot.forEach((doc) => {
+                    let q = doc.data();
+                    q.id = doc.id;
+                    questions.push(q);
+                });
+
+                // If no questions exist, seed initial ones
+                if (questions.length === 0) {
+                    console.log("Seeding initial questions...");
+                    for (const q of initialQuestions) {
+                        await addDoc(collection(db, "khaqaniyyah_questions"), q);
+                        questions.push(q);
+                    }
+                }
+
+                // Shuffle questions
+                questions = questions.sort(() => Math.random() - 0.5);
+                document.getElementById('totalQNum').innerText = questions.length;
+                document.getElementById('resultTotalQ').innerText = questions.length;
+
+            } catch (e) {
+                console.error("Error loading questions:", e);
+                // Fallback to local
+                questions = [...initialQuestions].sort(() => Math.random() - 0.5);
+            }
+        }
+
+        // Session Management
+        async function checkSession() {
+            const savedName = localStorage.getItem('khaqaniyyah_user');
+            if (savedName) {
+                if (savedName === ADMIN_NAME) {
+                    showSection('adminSection');
+                    initAdminPanel();
+                } else {
+                    // Check if student has previous score
+                    try {
+                        const userDoc = await getDoc(doc(db, "khaqaniyyah_students", savedName));
+                        if (userDoc.exists()) {
+                            const data = userDoc.data();
+                            currentUser = savedName;
+                            score = data.score;
+                            updateUserInfo(savedName);
+                            showResultSection();
+                        } else {
+                            // User saved locally but not in DB, clear local
+                            localStorage.removeItem('khaqaniyyah_user');
+                            showSection('loginSection');
+                        }
+                    } catch (e) {
+                        showSection('loginSection');
+                    }
+                }
+            } else {
+                showSection('loginSection');
+            }
+        }
+
+        // UI Helpers
+        function showSection(id) {
+            ['loginSection', 'quizSection', 'resultSection', 'adminSection'].forEach(sec => {
+                document.getElementById(sec).classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function updateUserInfo(name) {
+            const ui = document.getElementById('userInfo');
+            ui.classList.remove('hidden');
+            document.getElementById('displayUserName').innerText = name;
+        }
+
+        // --- LOGIN LOGIC ---
+        window.startLogin = async function () {
+            const input = document.getElementById('userNameInput').value.trim();
+            const err = document.getElementById('loginError');
+
+            if (input === ADMIN_NAME) {
+                localStorage.setItem('khaqaniyyah_user', input);
+                currentUser = input;
+                updateUserInfo(input);
+                showSection('adminSection');
+                initAdminPanel();
+                return;
+            }
+
+            const words = input.split(' ').filter(w => w.length > 0);
+            if (words.length < 4) {
+                err.classList.remove('hidden');
+                return;
+            }
+            err.classList.add('hidden');
+
+            currentUser = words.join(' ');
+            localStorage.setItem('khaqaniyyah_user', currentUser);
+            updateUserInfo(currentUser);
+
+            // Check if already taken
+            try {
+                const userDoc = await getDoc(doc(db, "khaqaniyyah_students", currentUser));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    score = data.score;
+                    document.getElementById('finalScore').innerText = score;
+                    const maxQ = data.total || 50;
+                    document.getElementById('resultTotalQ').innerText = maxQ;
+                    
+                    const percentage = score / maxQ;
+                    let msg = "";
+                    if (percentage >= 0.9) msg = "ما شاء الله! ممتاز جداً، حفظ متقن وفهم عميق.";
+                    else if (percentage >= 0.7) msg = "جيد جداً! تحتاج مراجعة بسيطة لتكون متقناً.";
+                    else msg = "عليك بمراجعة المنظومة مرة أخرى، الاستمرار يولد الإتقان.";
+                    
+                    document.getElementById('resultMessage').innerText = msg;
+                    showSection('resultSection');
+                    return;
+                }
+            } catch (e) { console.error(e); }
+
+            // Start new test
+            startQuiz();
+        }
+
+        window.logout = function () {
+            localStorage.removeItem('khaqaniyyah_user');
+            currentUser = null;
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('userNameInput').value = '';
+            showSection('loginSection');
+        }
+
+        // --- QUIZ LOGIC ---
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredQuestionsCount = 0;
+            questions = questions.sort(() => Math.random() - 0.5); // reshuffle
+            showSection('quizSection');
+            renderQuestion();
+        }
+
+        window.retakeQuiz = function () {
+            startQuiz();
+        }
+
+        function renderQuestion() {
+            const maxQ = questions.length;
+            if (answeredQuestionsCount >= maxQ || currentQuestionIndex >= questions.length) {
+                finishQuiz();
+                return;
+            }
+
+            const q = questions[currentQuestionIndex];
+            document.getElementById('currentQNum').innerText = answeredQuestionsCount + 1;
+            document.getElementById('currentScore').innerText = score;
+
+            const progress = (answeredQuestionsCount / maxQ) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+
+            document.getElementById('questionText').innerText = q.text;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition text-right w-full";
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(btn, idx, q.correctIndex);
+                container.appendChild(btn);
+            });
+        }
+
+        window.handleAnswer = function (btn, selectedIdx, correctIdx) {
+            // Disable all buttons
+            const buttons = document.getElementById('optionsContainer').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            if (selectedIdx === correctIdx) {
+                btn.classList.add('correct-ans');
+                score++;
+                fireConfetti();
+            } else {
+                btn.classList.add('wrong-ans');
+                // Highlight correct answer
+                buttons[correctIdx].classList.add('correct-ans');
+                buttons[correctIdx].classList.remove('border-gray-200', 'dark:border-gray-600');
+            }
+
+            answeredQuestionsCount++;
+            currentQuestionIndex++;
+
+            setTimeout(() => {
+                renderQuestion();
+            }, 1500);
+        }
+
+        function fireConfetti() {
+            var duration = 1500;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#064e3b', '#d97706', '#34d399']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#064e3b', '#d97706', '#34d399']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        async function finishQuiz() {
+            document.getElementById('finalScore').innerText = score;
+            const maxQ = questions.length;
+            const percentage = score / maxQ;
+            let msg = "";
+            if (percentage >= 0.9) msg = "ما شاء الله! ممتاز جداً، حفظ متقن وفهم عميق.";
+            else if (percentage >= 0.7) msg = "جيد جداً! تحتاج مراجعة بسيطة لتكون متقناً.";
+            else msg = "عليك بمراجعة المنظومة مرة أخرى، الاستمرار يولد الإتقان.";
+
+            document.getElementById('resultMessage').innerText = msg;
+            showSection('resultSection');
+
+            // Save to Firebase
+            try {
+                await setDoc(doc(db, "khaqaniyyah_students", currentUser), {
+                    name: currentUser,
+                    score: score,
+                    total: maxQ,
+                    timestamp: new Date().toISOString()
+                });
+            } catch (e) {
+                console.error("Error saving score", e);
+            }
+        }
+
+        // --- ADMIN LOGIC ---
+        window.switchAdminTab = function (tab) {
+            const tStudents = document.getElementById('tabStudents');
+            const tAi = document.getElementById('tabAi');
+            const tData = document.getElementById('tabData');
+            const cStudents = document.getElementById('adminStudentsTab');
+            const cAi = document.getElementById('adminAiTab');
+            const cData = document.getElementById('adminDataTab');
+
+            // Reset classes
+            [tStudents, tAi, tData].forEach(t => {
+                t.className = "flex-1 py-3 text-center font-bold text-gray-500 border-b-4 border-transparent hover:text-gray-700 dark:hover:text-gray-300";
+            });
+            [cStudents, cAi, cData].forEach(c => c.classList.add('hidden'));
+
+            if (tab === 'students') {
+                tStudents.className = "flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold";
+                cStudents.classList.remove('hidden');
+            } else if (tab === 'ai') {
+                tAi.className = "flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold";
+                cAi.classList.remove('hidden');
+                renderAdminQuestionsList();
+            } else if (tab === 'data') {
+                tData.className = "flex-1 py-3 text-center font-bold border-b-4 border-islamic-green text-islamic-green dark:border-islamic-gold dark:text-islamic-gold";
+                cData.classList.remove('hidden');
+            }
+        }
+
+        window.resetQuestionBank = async function() {
+            if(!confirm("هل أنت متأكد من حذف كافة الأسئلة الحالية واستبدالها بالأسئلة الـ 40 الجديدة؟")) return;
+            
+            const btn = document.getElementById('btnResetBank');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري المسح والتحديث...';
+
+            try {
+                const qSnap = await getDocs(collection(db, "khaqaniyyah_questions"));
+                for (const d of qSnap.docs) {
+                    await deleteDoc(doc(db, "khaqaniyyah_questions", d.id));
+                }
+                
+                for (const q of initialQuestions) {
+                    await addDoc(collection(db, "khaqaniyyah_questions"), q);
+                }
+                
+                alert("تم تحديث بنك الأسئلة بنجاح! سيتم إعادة تحميل الصفحة.");
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                alert("حدث خطأ أثناء التحديث: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync ml-2"></i> تحديث بنك الأسئلة (حذف الكل وإضافة الأربعين الجديدة)';
+            }
+        }
+
+        window.deleteAllStudents = async function() {
+            if(!confirm("هل أنت متأكد من مسح سجل كافة الطلاب؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+            
+            const btn = document.getElementById('btnDeleteStudents');
+            btn.disabled = true;
+            
+            try {
+                const qSnap = await getDocs(collection(db, "khaqaniyyah_students"));
+                for (const d of qSnap.docs) {
+                    await deleteDoc(doc(db, "khaqaniyyah_students", d.id));
+                }
+                alert("تم مسح سجل الطلاب بنجاح.");
+            } catch (e) {
+                console.error(e);
+                alert("حدث خطأ أثناء المسح.");
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function initAdminPanel() {
+            // Listen to students collection
+            const q = query(collection(db, "khaqaniyyah_students"));
+            onSnapshot(q, (snapshot) => {
+                const tbody = document.getElementById('studentsTableBody');
+                tbody.innerHTML = '';
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const date = new Date(data.timestamp).toLocaleDateString('ar-SA');
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50";
+                    tr.innerHTML = `
+                        <td class="p-3 font-medium">${data.name}</td>
+                        <td class="p-3 text-islamic-green dark:text-islamic-gold font-bold">${data.score} / ${data.total}</td>
+                        <td class="p-3 text-sm flex items-center justify-between gap-2">
+                            <span>${date}</span>
+                            <div class="flex gap-2">
+                                <button id="certBtn-${data.name.replace(/\s+/g, '')}" onclick='generateCertificate(${JSON.stringify(data).replace(/'/g, "&apos;")})' 
+                                    class="text-islamic-gold hover:text-yellow-600 p-1 bg-yellow-50 dark:bg-yellow-900/30 rounded" title="استخراج الشهادة">
+                                    <i class="fas fa-certificate text-lg"></i>
+                                </button>
+                                <button onclick="deleteStudent('${docSnap.id}')" class="text-red-500 hover:text-red-700 p-1 bg-red-50 dark:bg-red-900/30 rounded" title="حذف الطالب">
+                                    <i class="fas fa-trash text-lg"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        function renderAdminQuestionsList() {
+            document.getElementById('totalQuestionsCount').innerText = questions.length;
+            const list = document.getElementById('questionsList');
+            list.innerHTML = '';
+            questions.forEach((q, i) => {
+                const div = document.createElement('div');
+                div.className = "p-3 border-b dark:border-gray-700 text-sm flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800 transition question-item";
+                div.innerHTML = `
+                    <span class="flex-1 question-text">${i + 1}. ${q.text}</span>
+                    <button onclick='editQuestion(${JSON.stringify(q).replace(/'/g, "&apos;")})' class="text-blue-500 hover:text-blue-700 mr-4 bg-blue-50 dark:bg-blue-900/30 p-2 rounded" title="تعديل السؤال">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.filterAdminQuestions = function() {
+            const query = document.getElementById('searchQuestionInput').value.toLowerCase();
+            const items = document.querySelectorAll('.question-item');
+            items.forEach(item => {
+                const text = item.querySelector('.question-text').innerText.toLowerCase();
+                if(text.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        window.deleteStudent = async function(id) {
+            if(!confirm("هل أنت متأكد من حذف هذا الطالب نهائياً؟")) return;
+            try {
+                await deleteDoc(doc(db, "khaqaniyyah_students", id));
+                // Snapshot listener will auto update UI
+            } catch(e) {
+                console.error(e);
+                alert("حدث خطأ أثناء الحذف");
+            }
+        }
+
+        window.editQuestion = function(q) {
+            document.getElementById('editQId').value = q.id || '';
+            document.getElementById('editQText').value = q.text || '';
+            document.getElementById('editQOpt0').value = q.options[0] || '';
+            document.getElementById('editQOpt1').value = q.options[1] || '';
+            document.getElementById('editQOpt2').value = q.options[2] || '';
+            document.getElementById('editQCorrect').value = (q.correctIndex !== undefined ? q.correctIndex + 1 : 1);
+            
+            document.getElementById('editQuestionModal').classList.remove('hidden');
+        }
+
+        window.saveEditedQuestion = async function() {
+            const id = document.getElementById('editQId').value;
+            if(!id) {
+                alert("لا يمكن تعديل هذا السؤال لأنه لم يحفظ في قاعدة البيانات بعد.");
+                return;
+            }
+
+            const text = document.getElementById('editQText').value;
+            const opt0 = document.getElementById('editQOpt0').value;
+            const opt1 = document.getElementById('editQOpt1').value;
+            const opt2 = document.getElementById('editQOpt2').value;
+            let correct = parseInt(document.getElementById('editQCorrect').value) - 1;
+
+            if(!text || !opt0 || !opt1) {
+                alert("يجب ملء نص السؤال وخيارين على الأقل.");
+                return;
+            }
+
+            if(correct < 0 || correct > 2) correct = 0;
+
+            const options = [opt0, opt1];
+            if(opt2) options.push(opt2);
+
+            try {
+                await updateDoc(doc(db, "khaqaniyyah_questions", id), {
+                    text: text,
+                    options: options,
+                    correctIndex: correct
+                });
+                alert("تم تحديث السؤال بنجاح!");
+                document.getElementById('editQuestionModal').classList.add('hidden');
+                
+                // Update local array & UI
+                const qIndex = questions.findIndex(q => q.id === id);
+                if(qIndex !== -1) {
+                    questions[qIndex].text = text;
+                    questions[qIndex].options = options;
+                    questions[qIndex].correctIndex = correct;
+                    renderAdminQuestionsList();
+                }
+            } catch(e) {
+                console.error(e);
+                alert("حدث خطأ أثناء حفظ التعديلات.");
+            }
+        }
+
+        window.generateCertificate = async function(customData) {
+            const currentTotal = parseInt(document.getElementById('resultTotalQ').innerText) || questions.length;
+            const data = customData || { 
+                name: currentUser, 
+                score: score, 
+                total: currentTotal 
+            };
+            
+            // تحديد الزر المناسب لإظهار حالة التحميل
+            const btnId = customData ? `certBtn-${data.name.replace(/\s+/g, '')}` : 'certBtn-current';
+            const btn = document.getElementById(btnId);
+            const originalHTML = btn ? btn.innerHTML : '';
+            
+            if(btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري التجهيز...';
+            }
+
+            // تعبئة البيانات في قالب الشهادة
+            document.getElementById('certStudentName').innerText = data.name;
+            document.getElementById('certScore').innerText = data.score;
+            document.getElementById('certTotal').innerText = data.total;
+            
+            const now = new Date();
+            const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            document.getElementById('certDay').innerText = days[now.getDay()];
+            document.getElementById('certDate').innerText = now.toLocaleDateString('ar-SA');
+
+            try {
+                const certTemplate = document.getElementById('certificateTemplate');
+                // التقاط الشهادة كصورة بجودة عالية
+                const canvas = await html2canvas(certTemplate, { 
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false
+                });
+                const imgData = canvas.toDataURL('image/png');
+                
+                // إنشاء ملف PDF (أفقي A4)
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                
+                // خيار المشاركة للجوال أو التحميل للكمبيوتر
+                if (navigator.share && /Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                    const blob = pdf.output('blob');
+                    const file = new File([blob], `شهادة_${data.name}.pdf`, { type: 'application/pdf' });
+                    await navigator.share({
+                        files: [file],
+                        title: 'شهادة إتمام اختبار الخاقانية',
+                        text: `تم بحمد الله إتمام اختبار منظومة الخاقانية للطالب: ${data.name}`
+                    });
+                } else {
+                    pdf.save(`شهادة_${data.name}.pdf`);
+                }
+            } catch (e) {
+                console.error("Certificate error:", e);
+                alert("حدث خطأ أثناء استخراج الشهادة.");
+            } finally {
+                if(btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                }
+            }
+        }
+
+        window.generateAIQuestions = async function () {
+            const count = document.getElementById('aiQCount').value;
+            const difficulty = document.getElementById('aiQDifficulty').value;
+            const btn = document.getElementById('btnGenerateAI');
+            const status = document.getElementById('aiStatus');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري التوليد...';
+            status.classList.remove('hidden');
+            status.className = "text-sm mt-3 text-center font-bold text-blue-600";
+            status.innerText = "الذكاء الاصطناعي يقوم بصياغة الأسئلة، يرجى الانتظار...";
+
+            const promptText = `أنت خبير في علم التجويد والقصيدة الخاقانية لأبي مزاحم الخاقاني. 
+            قم بتأليف ${count} أسئلة بمستوى "${difficulty}" عن أبيات ومعاني وأحكام منظومة الخاقانية. 
+            يجب أن يكون الناتج بصيغة JSON فقط، عبارة عن مصفوفة (Array) تحتوي على كائنات (Objects) بالشكل التالي بالضبط:
+            [
+              {
+                "text": "نص السؤال هنا؟",
+                "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+                "correctIndex": 0 // رقم يمثل الإجابة الصحيحة من 0 إلى 3
+              }
+            ]
+            لا تكتب أي نص آخر غير كود ال JSON.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AI_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+
+                const generatedText = data.candidates[0].content.parts[0].text;
+                const newQuestions = JSON.parse(generatedText);
+
+                if (!Array.isArray(newQuestions)) throw new Error("Format error from AI");
+
+                // Save to DB
+                let added = 0;
+                for (const q of newQuestions) {
+                    if (q.text && q.options && q.options.length === 4 && typeof q.correctIndex === 'number') {
+                        await addDoc(collection(db, "khaqaniyyah_questions"), q);
+                        questions.push(q);
+                        added++;
+                    }
+                }
+
+                status.className = "text-sm mt-3 text-center font-bold text-green-600 dark:text-green-400";
+                status.innerText = `تمت إضافة ${added} أسئلة بنجاح!`;
+                renderAdminQuestionsList();
+
+            } catch (err) {
+                console.error(err);
+                status.className = "text-sm mt-3 text-center font-bold text-red-600 dark:text-red-400";
+                status.innerText = "حدث خطأ أثناء التوليد. الرجاء المحاولة مرة أخرى.";
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic ml-2"></i> توليد وإضافة للبنك';
+            }
+        }
+
+        window.showDeveloperInfo = function() {
+            document.getElementById('developerModal').classList.remove('hidden');
+        };
+
+        window.closeDeveloperInfo = function() {
+            document.getElementById('developerModal').classList.add('hidden');
+        };
+
+        // Boot
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+
+</html>
